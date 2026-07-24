@@ -25,3 +25,11 @@ Keep a small, self-contained collection of personally maintained skills with neu
 - Scan tracked and ignored workspace content for private identifiers and credential signatures.
 - Run shell syntax, JSON parsing, repository audit, and installation dry-run checks.
 - Leave all changes unstaged and uncommitted for review.
+
+## README and SOP
+
+- Document the profile-driven symlink model and every supported client target.
+- Lead with a safe `audit -> dry-run -> install -> verify` workflow.
+- Keep normal link uninstallation separate from destructive source removal.
+- Use portable Mermaid `classDef` styling to distinguish safe actions, decisions, and destructive operations.
+- Include direct script parameters, common commands, verification steps, and troubleshooting guidance.

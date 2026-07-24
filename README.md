@@ -20,46 +20,282 @@
 
 详细触发方式与依赖关系见 [skills/README.md](skills/README.md)。
 
-## 推荐工作流
+## Skill 使用链路
 
-```text
-brainstorming
-    ↓
-ai-pair-programmer ── app-scanner（多应用场景）
-    ↓
-author-final-review / code-review / integration-test
-    ↓
-full-review（需要汇总时）
+```mermaid
+flowchart LR
+    IDEA(["需求或问题"]) --> DESIGN["brainstorming<br/>澄清需求与设计"]
+    DESIGN --> CONTEXT{"是否为多应用工作区？"}
+    CONTEXT -- 是 --> SCAN["app-scanner<br/>补充应用上下文"]
+    CONTEXT -- 否 --> BUILD["ai-pair-programmer<br/>实现与验证"]
+    SCAN --> BUILD
+    BUILD --> REVIEW{"需要哪类保障？"}
+    REVIEW --> AUTHOR["author-final-review"]
+    REVIEW --> CODE["code-review"]
+    REVIEW --> TEST["integration-test"]
+    AUTHOR --> REPORT["full-review<br/>按需汇总"]
+    CODE --> REPORT
+    TEST --> REPORT
+    REPORT --> TEAM["team-cr<br/>多人审查时使用"]
+
+    classDef start fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20,stroke-width:2px;
+    classDef design fill:#E3F2FD,stroke:#1976D2,color:#0D47A1,stroke-width:2px;
+    classDef build fill:#FFF3E0,stroke:#F57C00,color:#E65100,stroke-width:2px;
+    classDef review fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-width:2px;
+    class IDEA start;
+    class DESIGN,CONTEXT,SCAN design;
+    class BUILD build;
+    class REVIEW,AUTHOR,CODE,TEST,REPORT,TEAM review;
 ```
 
-## 安装
+## 快速开始
 
-先预览安装动作：
+在仓库根目录依次执行：
 
 ```bash
+make audit-skills
 make install-dry-run
-```
-
-安装 `config/profiles/diy.skills` 中的全部技能：
-
-```bash
 make install
 ```
 
-卸载仓库创建的技能软链接：
+- `make audit-skills` 检查技能数量、重名和功能重叠。
+- `make install-dry-run` 只展示计划，不创建或替换软链接。
+- `make install` 同步 `config/profiles/diy.skills` 中的技能。
+
+安装器只处理本机已检测到的客户端；未安装的客户端会自动跳过。
+
+## 同步机制
+
+`scripts/install_team_bundle.sh` 以 profile 为入口，校验每个技能目录中的 `SKILL.md`，自动补齐 `depends_on` 依赖，然后将源码目录软链接到客户端技能目录。源码仍只保留一份，修改仓库文件后，各客户端会直接读取最新内容。
+
+```mermaid
+flowchart LR
+    PROFILE["config/profiles/diy.skills<br/>默认同步清单"]
+    SOURCE["skills/category/skill-name<br/>唯一源码"]
+    INSTALLER["scripts/install_team_bundle.sh<br/>选择、校验、冲突处理"]
+    CURSOR["$HOME/.cursor/skills"]
+    CLAUDE["$HOME/.claude/skills"]
+    CODEX1["$HOME/.codex/skills.union"]
+    CODEX2["$HOME/.codex/skills"]
+
+    PROFILE --> INSTALLER
+    SOURCE --> INSTALLER
+    INSTALLER -->|"软链接"| CURSOR
+    INSTALLER -->|"软链接"| CLAUDE
+    INSTALLER -->|"软链接"| CODEX1
+    INSTALLER -->|"软链接"| CODEX2
+
+    classDef profile fill:#E1F5FE,stroke:#0288D1,color:#01579B,stroke-width:2px;
+    classDef source fill:#E8F5E9,stroke:#388E3C,color:#1B5E20,stroke-width:2px;
+    classDef script fill:#FFF8E1,stroke:#F9A825,color:#F57F17,stroke-width:2px;
+    classDef target fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-width:2px;
+    class PROFILE profile;
+    class SOURCE source;
+    class INSTALLER script;
+    class CURSOR,CLAUDE,CODEX1,CODEX2 target;
+```
+
+| 客户端 | 同步目标 |
+|---|---|
+| Cursor | `$HOME/.cursor/skills` |
+| Claude Code | `$HOME/.claude/skills` |
+| Codex | `$HOME/.codex/skills.union`、`$HOME/.codex/skills` |
+
+### Make 命令
+
+| 命令 | 作用 | 是否修改文件或链接 |
+|---|---|---|
+| `make install-dry-run` | 预览默认 profile 的同步结果 | 否 |
+| `make install` | 同步默认 profile | 是 |
+| `make install-force` | 强制覆盖冲突目标 | 是，高风险 |
+| `make uninstall` | 卸载本仓库创建的技能软链接 | 是 |
+| `make audit-skills` | 审计数量、重名和功能重叠 | 否 |
+| `make remove-skills-dry-run` | 交互预览源码删除计划 | 否 |
+| `make remove-skills` | 交互执行源码删除 | 是，高风险 |
+| `make stats` | 查看本地技能使用统计 | 否 |
+| `make dashboard` | 打开本地统计看板 | 否 |
+| `make clean` | 清理 Python 缓存 | 是 |
+
+### 安装脚本参数
+
+查看实时帮助：
+
+```bash
+bash scripts/install_team_bundle.sh --help
+```
+
+| 参数 | 说明 |
+|---|---|
+| `--profile <name>` | 使用 `config/profiles/<name>.skills`，默认 `diy` |
+| `--interactive` | 在终端中选择本次同步的技能 |
+| `--no-interactive` | 不询问，按 profile 全量处理 |
+| `--dry-run` | 只打印计划，不落地 |
+| `--uninstall` | 卸载本仓库拥有的软链接，不删除源码 |
+| `--skill-conflict overwrite\|skip\|rename\|ask` | 同名 skill 的处理策略 |
+| `--conflict ask\|overwrite\|skip` | 已选目标存在时的替换策略 |
+| `--persist-extra ask\|always\|never` | 是否把交互追加的 skill 写回 profile |
+| `--force` | 不询问并覆盖已有目标，仅在确认目标归属后使用 |
+
+常见用法：
+
+```bash
+# 交互选择本次同步项
+bash scripts/install_team_bundle.sh --profile diy --interactive
+
+# 同名时保留现有项
+bash scripts/install_team_bundle.sh --profile diy --skill-conflict skip
+
+# 同名时使用 skill-name__dev-skill 形式安装
+bash scripts/install_team_bundle.sh --profile diy --skill-conflict rename
+
+# 选择未收录的 skill，并自动写回 profile
+bash scripts/install_team_bundle.sh --profile diy --interactive --persist-extra always
+```
+
+## 同步 SOP
+
+```mermaid
+flowchart TD
+    START(["开始同步"]) --> PULL["更新仓库并检查工作区"]
+    PULL --> AUDIT["make audit-skills"]
+    AUDIT --> PASS{"审计通过？"}
+    PASS -- 否 --> FIX["修复 SKILL.md、依赖或 profile"]
+    FIX --> AUDIT
+    PASS -- 是 --> DRY["make install-dry-run"]
+    DRY --> CONFLICT{"存在冲突？"}
+    CONFLICT -- 否 --> INSTALL["make install"]
+    CONFLICT -- 是 --> OWNER{"确认目标属于本仓库？"}
+    OWNER -- 否 --> SAFE["使用 skip 或 rename"]
+    OWNER -- 是 --> REPLACE["确认后覆盖"]
+    SAFE --> VERIFY["检查输出与软链接"]
+    REPLACE --> VERIFY
+    INSTALL --> VERIFY
+    VERIFY --> DONE(["同步完成"])
+
+    classDef start fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20,stroke-width:2px;
+    classDef check fill:#E3F2FD,stroke:#1976D2,color:#0D47A1,stroke-width:2px;
+    classDef decision fill:#FFF8E1,stroke:#F9A825,color:#F57F17,stroke-width:2px;
+    classDef warning fill:#FFEBEE,stroke:#D32F2F,color:#B71C1C,stroke-width:2px;
+    classDef action fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-width:2px;
+    class START,DONE start;
+    class PULL,AUDIT,DRY,VERIFY check;
+    class PASS,CONFLICT,OWNER decision;
+    class FIX,REPLACE warning;
+    class INSTALL,SAFE action;
+```
+
+同步后可抽查软链接：
+
+```bash
+readlink "$HOME/.cursor/skills/brainstorming"
+readlink "$HOME/.claude/skills/brainstorming"
+readlink "$HOME/.codex/skills/brainstorming"
+```
+
+预期结果应指向当前仓库中的 `skills/development/brainstorming`。未安装或未检测到的客户端没有对应链接是正常现象。
+
+## 卸载与删除
+
+### 普通卸载
+
+只移除指向本仓库的客户端软链接，保留源码和 profile：
 
 ```bash
 make uninstall
 ```
 
+普通卸载是停止使用技能的首选方式。安装器会核对软链接目标，不会删除不属于本仓库的同名目录。
+
+### 危险操作：删除源码
+
+`scripts/remove_skills.sh` 默认会同时执行三件事：删除客户端软链接、删除仓库中的 skill 源码、从 profile 中移除对应条目。执行前必须使用 `--dry-run`，并在执行后检查 `git diff`。
+
+```mermaid
+flowchart TD
+    START(["需要移除 skill"]) --> TYPE{"只停止本机使用？"}
+    TYPE -- 是 --> UNINSTALL["make uninstall"]
+    TYPE -- 否 --> SCOPE["用 --skills 或 --group 限定范围"]
+    SCOPE --> DRY["先执行 --dry-run"]
+    DRY --> REVIEW{"删除计划正确？"}
+    REVIEW -- 否 --> CANCEL["停止并调整参数"]
+    REVIEW -- 是 --> CLEAN{"Git 工作区可回退？"}
+    CLEAN -- 否 --> CANCEL
+    CLEAN -- 是 --> REMOVE["执行删除，不使用 --force"]
+    REMOVE --> AUDIT["make audit-skills"]
+    AUDIT --> DIFF["检查 git diff 与 profile"]
+    DIFF --> DONE(["完成"])
+
+    classDef start fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20,stroke-width:2px;
+    classDef decision fill:#FFF8E1,stroke:#F9A825,color:#F57F17,stroke-width:2px;
+    classDef safe fill:#E3F2FD,stroke:#1976D2,color:#0D47A1,stroke-width:2px;
+    classDef danger fill:#FFEBEE,stroke:#D32F2F,color:#B71C1C,stroke-width:2px;
+    classDef verify fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-width:2px;
+    class START,DONE start;
+    class TYPE,REVIEW,CLEAN decision;
+    class UNINSTALL,SCOPE,DRY safe;
+    class CANCEL,REMOVE danger;
+    class AUDIT,DIFF verify;
+```
+
+查看实时帮助：
+
+```bash
+bash scripts/remove_skills.sh --help
+```
+
+安全示例：
+
+```bash
+# 预览删除一个 skill 的完整影响
+bash scripts/remove_skills.sh --skills code-review --dry-run --no-interactive
+
+# 只移除 Codex 软链接，不删除源码
+bash scripts/remove_skills.sh --skills code-review --targets codex --unlink-only --dry-run
+
+# 预览删除 review 分类中的全部源码、链接和 profile 条目
+bash scripts/remove_skills.sh --group review --dry-run --no-interactive
+```
+
+> `--repo-only` 会删除源码，`--force` 还可能删除不属于本仓库的同名文件或目录。除非已经确认范围并具备 Git 回退点，否则不要使用。
+
+## Skill 维护 SOP
+
+新增、移动或删除 skill 时：
+
+1. 将源码放在 `skills/<category>/<skill-name>/`，并提供有效的 `SKILL.md`。
+2. 检查 frontmatter 中的 `name`、`description` 和 `depends_on`。
+3. 更新 `config/profiles/diy.skills` 和技能索引文档。
+4. 运行 `make audit-skills`、`make install-dry-run` 和相关脚本检查。
+5. 扫描凭据、私有地址、生产数据和本机绝对路径。
+6. 查看 `git diff`，确认只包含预期改动后再提交。
+
 ## 仓库维护
 
 ```bash
-make audit-skills   # 检查技能数量、重名和功能重叠
-make stats          # 查看本地使用统计
-make dashboard      # 打开本地统计看板
-make clean          # 清理缓存文件
+make audit-skills       # 检查技能数量、重名和功能重叠
+make stats              # 查看本地使用统计
+make sync-readme-stats  # 手动刷新 README 使用统计快照
+make dashboard          # 打开本地统计看板
+make clean              # 清理缓存文件
 ```
+
+## 常见问题
+
+### 为什么某个客户端没有同步？
+
+安装器只处理已检测到的客户端，并要求目标父目录存在。先确认客户端或 CLI 已安装，再重新执行 `make install-dry-run`。
+
+### 为什么 dry-run 显示冲突但没有覆盖？
+
+演练模式不会修改已有目标。先确认目标归属，再选择 `--skill-conflict skip`、`rename` 或显式覆盖策略。
+
+### 修改 skill 后需要重新安装吗？
+
+正常情况下不需要。客户端读取的是指向仓库源码的软链接；只有移动目录、修改 skill 名称或链接丢失时才需要重新同步。
+
+### profile 外的新 skill 为什么没有自动安装？
+
+非交互模式只同步 profile。使用 `--interactive` 选择额外 skill，并按需使用 `--persist-extra always` 写回 profile。
 
 ## 目录结构
 
