@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Usage Dashboard</title>
+  <style>
+    :root {
+      --bg: #f3f8fb;
+      --card: rgba(255, 255, 255, 0.88);
+      --text: #14213d;
+      --muted: #5a667c;
+      --line: #d8e1ef;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --success: #059669;
+      --warning: #d97706;
+      --shadow-lg: 0 14px 32px rgba(37, 99, 235, 0.09);
+      --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 16%, rgba(147, 197, 253, 0.5) 0%, transparent 34%),
+        radial-gradient(circle at 84% 8%, rgba(110, 231, 183, 0.35) 0%, transparent 30%),
+        radial-gradient(circle at 72% 88%, rgba(196, 181, 253, 0.26) 0%, transparent 36%),
+        linear-gradient(165deg, #f6fbff 0%, #edf5fb 58%, #f2faf6 100%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 22px auto 40px;
+      padding: 0 16px;
+    }
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      margin: 0;
+    }
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(5px);
+    }
+    .toolbar input[type="text"] {
+      width: 360px;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+    }
+    .toolbar button, .toolbar label {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .toolbar button.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .toolbar button.range {
+      background: #fff;
+      border-color: var(--line);
+      color: #1f2937;
+    }
+    .toolbar button.range.active {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      color: #fff;
+    }
+    .toolbar label input[type="file"] { display: none; }
+    .toolbar .toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      padding: 0 4px;
+      cursor: default;
+    }
+    .toolbar input[type="date"] {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+    }
+    .status {
+      margin: 10px 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(216, 225, 239, 0.8);
+      border-radius: 10px;
+      padding: 9px 12px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+      display: inline-block;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(4px);
+    }
+    .metric-title {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-weight: 700;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .metric-sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(4px);
+    }
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .content-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 12px;
+      align-items: start;
+    }
+    .content-main { min-width: 0; }
+    .skill-info-panel {
+      position: sticky;
+      top: 14px;
+    }
+    .skill-info-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+    .skill-info-desc {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      min-height: 72px;
+    }
+    .skill-info-meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+    .bars {
+      display: grid;
+      gap: 8px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 220px 1fr 60px;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .bar-row:hover {
+      background: #eff5ff;
+    }
+    .bar-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #111827;
+    }
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+      border-radius: 999px;
+    }
+    .bar-val {
+      text-align: right;
+      color: #111827;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-size: 12px;
+      color: var(--muted);
+      background: #f4f8ff;
+      font-weight: 600;
+    }
+    td.rank { width: 56px; color: var(--muted); }
+    td.count { width: 90px; font-weight: 700; }
+    td.percent { width: 100px; color: #1f2937; }
+    td.last-used { width: 190px; color: #374151; }
+    td.desc { min-width: 260px; color: #374151; }
+    td.trend { width: 110px; }
+    tr.skill-row {
+      cursor: pointer;
+    }
+    tr.skill-row:hover {
+      background: #eff5ff;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+    }
+    .tag.hot {
+      background: #ecfdf5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 20px 10px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .quickstart {
+      padding: 14px;
+    }
+    .quickstart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .quick-card {
+      background: linear-gradient(165deg, #ffffff 0%, #f4f9ff 100%);
+      border: 1px solid #d7e6ff;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .quick-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+      color: #12315f;
+    }
+    .quick-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 6px 0 0;
+    }
+    .quick-code {
+      margin: 0;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      overflow: auto;
+      border: 1px solid #1f2a44;
+    }
+    .quick-link {
+      color: #1d4ed8;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .quick-link:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bar-row { grid-template-columns: 150px 1fr 48px; }
+      .content-layout { grid-template-columns: 1fr; }
+      .skill-info-panel { position: static; }
+      .quickstart-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 110px 1fr 42px; }
+      .toolbar { width: 100%; }
+      .toolbar input[type="text"] { width: 100%; }
+      .title { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1 class="title">📊 Skill 使用频率看板</h1>
+        <p class="subtitle">基于统一统计文件，自动刷新展示技能使用次数、占比与近7天热度</p>
+      </div>
+      <div class="toolbar">
+        <input id="sourceInput" type="text" value="~/usage_stats.json" placeholder="输入 JSON 路径（支持 /xxx 或 ~/xxx）">
+        <button id="loadBtn" class="primary">加载</button>
+        <label>导入本地 JSON
+          <input id="fileInput" type="file" accept="application/json">
+        </label>
+        <button id="rangeAllBtn" class="range" type="button">全部时间</button>
+        <button id="range7Btn" class="range active" type="button">最近7天</button>
+        <button id="range30Btn" class="range" type="button">最近30天</button>
+        <span class="toggle">
+          <input id="customRangeEnabled" type="checkbox">
+          <label for="customRangeEnabled" style="border:none;padding:0;cursor:pointer;">自定义日期</label>
+        </span>
+        <input id="startDateInput" type="date" disabled>
+        <input id="endDateInput" type="date" disabled>
+        <span class="toggle">
+          <input id="autoRefresh" type="checkbox" checked>
+          <label for="autoRefresh" style="border:none;padding:0;cursor:pointer;">自动刷新(10s)</label>
+        </span>
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="dot"></span>
+      <span id="statusText">等待加载数据...</span>
+      <span id="refreshText"></span>
+    </div>
+
+    <div class="panel quickstart">
+      <h3>🚀 快速开始（启动命令与教程）</h3>
+      <div class="quickstart-grid">
+        <div class="quick-card">
+          <div class="quick-title">方式一：HTTP 本地服务（推荐）</div>
+          <pre class="quick-code"><code>cd &lt;repo-root&gt;/dev-skill
+python3 -m http.server 8000</code></pre>
+          <p class="quick-note">
+            启动后访问：
+            <a class="quick-link" target="_blank" href="http://localhost:8000/skills/platform/skill-usage-tracker/dashboard/index.html">http://localhost:8000/skills/platform/skill-usage-tracker/dashboard/index.html</a>
+          </p>
+        </div>
+        <div class="quick-card">
+          <div class="quick-title">方式二：直接打开 HTML（备用）</div>
+          <pre class="quick-code"><code>open skills/platform/skill-usage-tracker/dashboard/index.html</code></pre>
+          <p class="quick-note">如果是 file:// 打开，浏览器通常禁止 fetch 本地 JSON。页面会自动提示导入本地文件，或引导你切回方式一。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="metric-title">总调用次数</div>
+        <div id="totalUsage" class="metric-value">-</div>
+        <div class="metric-sub">来自 JSON 的 total_usage</div>
+      </div>
+      <div class="card">
+        <div class="metric-title">技能总数</div>
+        <div id="skillCount" class="metric-value">-</div>
+        <div class="metric-sub">出现过使用记录的技能</div>
+      </div>
+      <div class="card">
+        <div class="metric-title">最常用技能</div>
+        <div id="topSkill" class="metric-value" style="font-size:18px;">-</div>
+        <div id="topSkillCount" class="metric-sub">-</div>
+      </div>
+      <div class="card">
+        <div class="metric-title">最近活跃</div>
+        <div id="latestUsed" class="metric-value" style="font-size:18px;">-</div>
+        <div class="metric-sub">按 last_used 排序</div>
+      </div>
+    </div>
+
+    <div class="content-layout">
+      <div class="content-main">
+        <div class="panel">
+          <h3>📈 使用频率 Top 12</h3>
+          <div id="bars" class="bars"></div>
+        </div>
+
+        <div class="panel">
+          <h3>🧾 全量技能排行</h3>
+          <div style="overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Skill</th>
+                  <th>次数</th>
+                  <th>占比</th>
+                  <th id="windowHeader">窗口内</th>
+                  <th>最后使用</th>
+                  <th>简介</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel skill-info-panel">
+        <h3>🧠 技能简介</h3>
+        <div id="skillInfoName" class="skill-info-name">悬停技能查看说明</div>
+        <div id="skillInfoDesc" class="skill-info-desc">将鼠标移动到左侧榜单任意 skill，或点击 skill 行，即可在这里看到简介。</div>
+        <div id="skillInfoMeta" class="skill-info-meta"></div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const sourceInput = document.getElementById("sourceInput");
+    const loadBtn = document.getElementById("loadBtn");
+    const fileInput = document.getElementById("fileInput");
+    const rangeAllBtn = document.getElementById("rangeAllBtn");
+    const range7Btn = document.getElementById("range7Btn");
+    const range30Btn = document.getElementById("range30Btn");
+    const customRangeEnabled = document.getElementById("customRangeEnabled");
+    const startDateInput = document.getElementById("startDateInput");
+    const endDateInput = document.getElementById("endDateInput");
+    const autoRefresh = document.getElementById("autoRefresh");
+    const statusText = document.getElementById("statusText");
+    const refreshText = document.getElementById("refreshText");
+
+    const totalUsageEl = document.getElementById("totalUsage");
+    const skillCountEl = document.getElementById("skillCount");
+    const topSkillEl = document.getElementById("topSkill");
+    const topSkillCountEl = document.getElementById("topSkillCount");
+    const latestUsedEl = document.getElementById("latestUsed");
+    const barsEl = document.getElementById("bars");
+    const tableBodyEl = document.getElementById("tableBody");
+    const windowHeaderEl = document.getElementById("windowHeader");
+    const skillInfoNameEl = document.getElementById("skillInfoName");
+    const skillInfoDescEl = document.getElementById("skillInfoDesc");
+    const skillInfoMetaEl = document.getElementById("skillInfoMeta");
+
+    let timer = null;
+    let currentMode = "fetch"; // fetch | file
+    let currentFileContent = null;
+    let rangeMode = "7d"; // all | 7d | 30d | custom
+    let lastLoadedRaw = null;
+    let lastSourceLabel = "";
+    const descriptionCache = {};
+    let infoRequestSerial = 0;
+    const skillGroups = ["development", "review", "visualization", "platform"];
+
+    function formatDate(s) {
+      if (!s) return "-";
+      const d = new Date(s);
+      if (Number.isNaN(d.getTime())) return s;
+      return d.toLocaleString("zh-CN", { hour12: false });
+    }
+
+    function timeAgo(s) {
+      if (!s) return "-";
+      const t = new Date(s).getTime();
+      if (Number.isNaN(t)) return "-";
+      const diff = Date.now() - t;
+      const sec = Math.floor(diff / 1000);
+      if (sec < 60) return `${sec}秒前`;
+      const min = Math.floor(sec / 60);
+      if (min < 60) return `${min}分钟前`;
+      const hour = Math.floor(min / 60);
+      if (hour < 24) return `${hour}小时前`;
+      const day = Math.floor(hour / 24);
+      return `${day}天前`;
+    }
+
+    function toDateInputValue(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function parseStartOfDayMs(dateText) {
+      const t = new Date(`${dateText}T00:00:00`).getTime();
+      return Number.isNaN(t) ? null : t;
+    }
+
+    function parseEndOfDayMs(dateText) {
+      const t = new Date(`${dateText}T23:59:59.999`).getTime();
+      return Number.isNaN(t) ? null : t;
+    }
+
+    function setPresetButtonsActive(activeMode) {
+      [rangeAllBtn, range7Btn, range30Btn].forEach(btn => btn.classList.remove("active"));
+      if (activeMode === "all") rangeAllBtn.classList.add("active");
+      if (activeMode === "7d") range7Btn.classList.add("active");
+      if (activeMode === "30d") range30Btn.classList.add("active");
+    }
+
+    function ensureDefaultCustomDates() {
+      if (startDateInput.value && endDateInput.value) return;
+      const now = new Date();
+      const endText = toDateInputValue(now);
+      const start = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+      startDateInput.value = toDateInputValue(start);
+      endDateInput.value = endText;
+    }
+
+    function updateRangeControls() {
+      const customEnabled = customRangeEnabled.checked;
+      startDateInput.disabled = !customEnabled;
+      endDateInput.disabled = !customEnabled;
+      if (customEnabled) {
+        ensureDefaultCustomDates();
+        setPresetButtonsActive("");
+      } else {
+        setPresetButtonsActive(rangeMode);
+      }
+    }
+
+    function currentRangeConfig() {
+      if (customRangeEnabled.checked) {
+        const startText = startDateInput.value;
+        const endText = endDateInput.value;
+        if (!startText || !endText) {
+          return { error: "请先选择完整的开始/结束日期" };
+        }
+        const startMs = parseStartOfDayMs(startText);
+        const endMs = parseEndOfDayMs(endText);
+        if (startMs === null || endMs === null) {
+          return { error: "日期格式无效，请重新选择" };
+        }
+        if (startMs > endMs) {
+          return { error: "开始日期不能晚于结束日期" };
+        }
+        return {
+          startMs,
+          endMs,
+          label: `${startText} 至 ${endText}`,
+          windowLabel: "区间内",
+        };
+      }
+
+      if (rangeMode === "all") {
+        return { startMs: null, endMs: null, label: "全部时间", windowLabel: "累计" };
+      }
+
+      const now = Date.now();
+      if (rangeMode === "30d") {
+        return {
+          startMs: now - 30 * 24 * 60 * 60 * 1000,
+          endMs: now,
+          label: "最近30天",
+          windowLabel: "近30天",
+        };
+      }
+
+      return {
+        startMs: now - 7 * 24 * 60 * 60 * 1000,
+        endMs: now,
+        label: "最近7天",
+        windowLabel: "近7天",
+      };
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function compactDesc(text, maxLen = 42) {
+      const c = String(text || "").replace(/\s+/g, " ").trim();
+      if (c.length <= maxLen) return c || "悬停查看右侧";
+      return `${c.slice(0, maxLen - 1)}…`;
+    }
+
+    function parseDescriptionFromSkillMd(mdText) {
+      const fmMatch = mdText.match(/^---\n([\s\S]*?)\n---/);
+      if (!fmMatch) return "";
+
+      const frontmatter = fmMatch[1].replace(/\r/g, "");
+      const lines = frontmatter.split("\n");
+      for (let i = 0; i < lines.length; i += 1) {
+        const match = lines[i].match(/^description:\s*(.*)$/);
+        if (!match) continue;
+        const raw = (match[1] || "").trim();
+        if (!raw) return "";
+
+        const blockTokenSet = new Set(["|", "|-", "|+", ">", ">-", ">+"]);
+        if (blockTokenSet.has(raw)) {
+          const block = [];
+          for (let j = i + 1; j < lines.length; j += 1) {
+            const line = lines[j];
+            if (!line.trim()) {
+              block.push("");
+              continue;
+            }
+            const indent = line.match(/^\s+/);
+            if (!indent || indent[0].length < 2) break;
+            block.push(line.slice(2));
+          }
+          return block.join(" ").replace(/\s+/g, " ").trim();
+        }
+
+        return raw.replace(/^['"]|['"]$/g, "").trim();
+      }
+      return "";
+    }
+
+    function candidateSkillMdPaths(skillName) {
+      const absolutePaths = skillGroups.map(g => `/skills/${g}/${skillName}/SKILL.md`);
+      const relativePaths = skillGroups.map(g => `../../../${g}/${skillName}/SKILL.md`);
+
+      // file:// 协议下，/skills/... 会被解析成 file:///skills/...（系统根目录），
+      // 这里优先尝试相对路径，保证本地直接打开 dashboard 也能读取 SKILL.md。
+      const ordered = location.protocol === "file:"
+        ? [...relativePaths, ...absolutePaths]
+        : [...absolutePaths, ...relativePaths];
+
+      // 去重，避免同一路径重复请求。
+      return [...new Set(ordered)];
+    }
+
+    function buildFetchUrl(path) {
+      // file:// 下如果拼 query（例如 ?_t=...），会被当成文件名一部分导致读取失败。
+      if (location.protocol === "file:") return path;
+      const sep = path.includes("?") ? "&" : "?";
+      return `${path}${sep}_t=${Date.now()}`;
+    }
+
+    async function getSkillDescription(skillName) {
+      if (!skillName) return "无技能说明";
+      if (descriptionCache[skillName]) return descriptionCache[skillName];
+
+      const paths = candidateSkillMdPaths(skillName);
+      for (const p of paths) {
+        try {
+          const res = await fetch(buildFetchUrl(p), { cache: "no-store" });
+          if (!res.ok) continue;
+          const txt = await res.text();
+          const desc = parseDescriptionFromSkillMd(txt);
+          if (desc) {
+            descriptionCache[skillName] = desc;
+            return desc;
+          }
+        } catch (err) {
+          // Continue trying the next candidate path.
+        }
+      }
+
+      descriptionCache[skillName] = "未找到该 skill 的描述（可能不在仓库 skills 目录中）";
+      return descriptionCache[skillName];
+    }
+
+    async function showSkillInfo(skillName, rowData, windowLabel) {
+      if (!skillName) return;
+      const requestId = ++infoRequestSerial;
+      skillInfoNameEl.textContent = `🔍 ${skillName}`;
+      skillInfoDescEl.textContent = "正在加载技能说明...";
+      skillInfoMetaEl.innerHTML = `
+        <div>调用次数：${rowData?.count ?? "-"}</div>
+        <div>${windowLabel}：${rowData?.windowCount ?? "-"}</div>
+        <div>最后使用：${formatDate(rowData?.windowLastUsed || rowData?.lastUsed || "")}</div>
+      `;
+
+      const desc = await getSkillDescription(skillName);
+      if (requestId !== infoRequestSerial) return;
+      skillInfoDescEl.textContent = desc;
+      applyDescriptionToSkill(skillName, desc);
+    }
+
+    function bindSkillInteractions(rows, windowLabel) {
+      const rowMap = new Map(rows.map(r => [r.name, r]));
+      document.querySelectorAll("[data-skill]").forEach(el => {
+        const skill = el.getAttribute("data-skill") || "";
+        const row = rowMap.get(skill);
+        el.addEventListener("mouseenter", () => {
+          showSkillInfo(skill, row, windowLabel);
+        });
+        el.addEventListener("click", () => {
+          showSkillInfo(skill, row, windowLabel);
+        });
+      });
+    }
+
+    function applyDescriptionToSkill(skillName, description) {
+      const shortDesc = compactDesc(description, 44);
+      document.querySelectorAll("tr.skill-row").forEach(row => {
+        if (row.getAttribute("data-skill") !== skillName) return;
+        const td = row.querySelector("td.desc");
+        if (!td) return;
+        td.textContent = shortDesc;
+        td.title = shortDesc;
+      });
+      document.querySelectorAll(".bar-row").forEach(row => {
+        if (row.getAttribute("data-skill") !== skillName) return;
+        row.title = compactDesc(description, 36);
+      });
+    }
+
+    async function hydrateDescriptions(rows) {
+      const tasks = rows.map(async (row) => {
+        const desc = await getSkillDescription(row.name);
+        applyDescriptionToSkill(row.name, desc);
+      });
+      await Promise.all(tasks);
+    }
+
+    function normalizeData(raw, rangeCfg) {
+      const skillsObj = raw && typeof raw === "object" && raw.skills && typeof raw.skills === "object"
+        ? raw.skills
+        : {};
+      const hasWindow = rangeCfg.startMs !== null && rangeCfg.endMs !== null;
+      const rows = Object.entries(skillsObj).map(([name, data]) => {
+        const countAll = Number(data?.count || 0);
+        const history = Array.isArray(data?.history) ? data.history : [];
+        const events = history
+          .map(h => {
+            const ts = String(h?.timestamp || "");
+            const ms = new Date(ts).getTime();
+            if (!ts || Number.isNaN(ms)) return null;
+            return { ts, ms };
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.ms - a.ms);
+        const windowEvents = hasWindow
+          ? events.filter(e => e.ms >= rangeCfg.startMs && e.ms <= rangeCfg.endMs)
+          : events;
+        const windowCount = hasWindow ? windowEvents.length : countAll;
+        const windowLastUsed = windowEvents.length > 0 ? windowEvents[0].ts : "";
+        return {
+          name,
+          count: windowCount,
+          countAll,
+          lastUsed: data?.last_used || "",
+          windowLastUsed,
+          history,
+          windowCount,
+        };
+      })
+      .filter(r => !hasWindow || r.count > 0);
+
+      rows.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+      const totalUsage = hasWindow
+        ? rows.reduce((s, r) => s + r.count, 0)
+        : Number(raw?.total_usage || rows.reduce((s, r) => s + r.count, 0));
+      return { rows, totalUsage };
+    }
+
+    function render(raw, sourceLabel) {
+      const rangeCfg = currentRangeConfig();
+      if (rangeCfg.error) {
+        statusText.textContent = `筛选无效：${rangeCfg.error}`;
+        return;
+      }
+
+      const { rows, totalUsage } = normalizeData(raw, rangeCfg);
+      windowHeaderEl.textContent = rangeCfg.windowLabel;
+      const top = rows[0];
+      const latest = [...rows].sort((a, b) => {
+        const ta = new Date((a.windowLastUsed || a.lastUsed) || 0).getTime();
+        const tb = new Date((b.windowLastUsed || b.lastUsed) || 0).getTime();
+        return tb - ta;
+      })[0];
+
+      totalUsageEl.textContent = String(totalUsage);
+      skillCountEl.textContent = String(rows.length);
+      topSkillEl.textContent = top ? top.name : "-";
+      topSkillCountEl.textContent = top ? `调用 ${top.count} 次` : "-";
+      latestUsedEl.textContent = latest ? `${latest.name} · ${timeAgo(latest.windowLastUsed || latest.lastUsed)}` : "-";
+
+      if (rows.length === 0) {
+        barsEl.innerHTML = `<div class="empty">暂无技能统计数据</div>`;
+        tableBodyEl.innerHTML = `<tr><td colspan="7"><div class="empty">暂无技能统计数据</div></td></tr>`;
+        skillInfoNameEl.textContent = "悬停技能查看说明";
+        skillInfoDescEl.textContent = "将鼠标移动到左侧榜单任意 skill，或点击 skill 行，即可在这里看到简介。";
+        skillInfoMetaEl.innerHTML = "";
+        return;
+      }
+
+      const maxCount = Math.max(...rows.map(r => r.count), 1);
+      const topRows = rows.slice(0, 12);
+      barsEl.innerHTML = topRows.map(r => {
+        const width = Math.max(3, Math.round((r.count / maxCount) * 100));
+        const hint = compactDesc(descriptionCache[r.name] || "悬停查看简介", 36);
+        return `
+          <div class="bar-row" data-skill="${escapeHtml(r.name)}" title="${escapeHtml(hint)}">
+            <div class="bar-name">${escapeHtml(r.name)}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            <div class="bar-val">${r.count}</div>
+          </div>
+        `;
+      }).join("");
+
+      tableBodyEl.innerHTML = rows.map((r, idx) => {
+        const pct = totalUsage > 0 ? `${((r.count / totalUsage) * 100).toFixed(1)}%` : "0%";
+        const hotTag = r.windowCount >= 3 ? `<span class="tag hot">🔥 ${r.windowCount}</span>` : `<span class="tag">${r.windowCount}</span>`;
+        const lastUsedToShow = r.windowLastUsed || r.lastUsed;
+        const hint = compactDesc(descriptionCache[r.name] || "悬停查看右侧说明", 44);
+        return `
+          <tr class="skill-row" data-skill="${escapeHtml(r.name)}">
+            <td class="rank">${idx + 1}</td>
+            <td title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</td>
+            <td class="count">${r.count}</td>
+            <td class="percent">${pct}</td>
+            <td class="trend">${hotTag}</td>
+            <td class="last-used" title="${escapeHtml(formatDate(lastUsedToShow))}">${escapeHtml(formatDate(lastUsedToShow))}</td>
+            <td class="desc" title="${escapeHtml(hint)}">${escapeHtml(hint)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      statusText.textContent = `数据来源：${sourceLabel} · 时间窗：${rangeCfg.label} · 共 ${rows.length} 个技能`;
+      bindSkillInteractions(rows, rangeCfg.windowLabel);
+      showSkillInfo(top?.name, top, rangeCfg.windowLabel);
+      hydrateDescriptions(rows);
+    }
+
+    function renderFromCachedData() {
+      if (!lastLoadedRaw) return;
+      render(lastLoadedRaw, lastSourceLabel || "未知来源");
+    }
+
+    async function loadFromPath(path) {
+      const res = await fetch(buildFetchUrl(path), { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const raw = await res.json();
+      lastLoadedRaw = raw;
+      lastSourceLabel = path;
+      renderFromCachedData();
+    }
+
+    async function loadWithFallback(paths) {
+      const tried = [];
+      for (const p of paths) {
+        if (!p) continue;
+        try {
+          await loadFromPath(p);
+          return p;
+        } catch (err) {
+          tried.push(`${p}(${err.message})`);
+        }
+      }
+      throw new Error(`全部数据源读取失败：${tried.join(" ; ")}`);
+    }
+
+    async function loadNow() {
+      try {
+        if (location.protocol === "file:" && currentMode === "fetch") {
+          statusText.textContent = "当前是 file:// 打开，浏览器禁止 fetch 本地文件。请在仓库根目录执行：python3 -m http.server 8000，再访问 /skills/platform/skill-usage-tracker/dashboard/index.html";
+          refreshText.textContent = "";
+          return;
+        }
+
+        if (currentMode === "file" && currentFileContent) {
+          lastLoadedRaw = currentFileContent;
+          lastSourceLabel = "本地文件";
+          renderFromCachedData();
+          refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
+          return;
+        }
+        let path = sourceInput.value.trim();
+        if (!path) throw new Error("JSON 路径为空");
+        if (path.startsWith("~/")) {
+          throw new Error("浏览器不能直接读取 ~/ 路径，请使用“导入本地 JSON”选择 ~/usage_stats.json");
+        }
+
+        const defaultUnifiedPath = "~/usage_stats.json";
+        const sourceUsed = await loadWithFallback(
+          path === defaultUnifiedPath
+            ? [path]
+            : [path]
+        );
+        if (sourceUsed !== path) {
+          sourceInput.value = sourceUsed;
+        }
+        refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
+      } catch (err) {
+        statusText.textContent = `加载失败：${err.message}`;
+      }
+    }
+
+    function setupAutoRefresh() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      if (autoRefresh.checked && currentMode === "fetch") {
+        timer = setInterval(loadNow, 10000);
+      }
+    }
+
+    function onRangeChanged() {
+      updateRangeControls();
+      renderFromCachedData();
+    }
+
+    rangeAllBtn.addEventListener("click", () => {
+      rangeMode = "all";
+      customRangeEnabled.checked = false;
+      onRangeChanged();
+    });
+
+    range7Btn.addEventListener("click", () => {
+      rangeMode = "7d";
+      customRangeEnabled.checked = false;
+      onRangeChanged();
+    });
+
+    range30Btn.addEventListener("click", () => {
+      rangeMode = "30d";
+      customRangeEnabled.checked = false;
+      onRangeChanged();
+    });
+
+    customRangeEnabled.addEventListener("change", () => {
+      onRangeChanged();
+    });
+
+    startDateInput.addEventListener("change", () => {
+      if (!customRangeEnabled.checked) return;
+      renderFromCachedData();
+    });
+
+    endDateInput.addEventListener("change", () => {
+      if (!customRangeEnabled.checked) return;
+      renderFromCachedData();
+    });
+
+    loadBtn.addEventListener("click", async () => {
+      currentMode = "fetch";
+      currentFileContent = null;
+
+      // file:// 下无法 fetch 本地绝对路径，
+      // 这里给出明确引导并在常见默认路径下自动打开文件选择器。
+      if (location.protocol === "file:") {
+        const path = sourceInput.value.trim();
+        if (!path || path === "~/usage_stats.json" || path === "/usage_stats.json") {
+          statusText.textContent = "当前是 file:// 打开，浏览器禁止 fetch 本地文件。已自动打开文件选择器，请选择 ~/usage_stats.json；或在仓库根目录执行：python3 -m http.server 8000 后改用 http://localhost:8000 访问。";
+          refreshText.textContent = "";
+          fileInput.value = "";
+          fileInput.click();
+          return;
+        }
+      }
+
+      await loadNow();
+      setupAutoRefresh();
+    });
+
+    fileInput.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      try {
+        const text = await f.text();
+        currentFileContent = JSON.parse(text);
+        currentMode = "file";
+        lastLoadedRaw = currentFileContent;
+        lastSourceLabel = `本地文件：${f.name}`;
+        renderFromCachedData();
+        refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
+        setupAutoRefresh();
+      } catch (err) {
+        statusText.textContent = `文件解析失败：${err.message}`;
+      }
+    });
+
+    autoRefresh.addEventListener("change", setupAutoRefresh);
+
+    updateRangeControls();
+    loadNow().then(setupAutoRefresh);
+  </script>
+</body>
+</html>

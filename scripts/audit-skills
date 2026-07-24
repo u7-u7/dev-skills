@@ -1,0 +1,279 @@
+#!/usr/bin/env node
+
+const fs = require("fs");
+const path = require("path");
+
+const repoRoot = path.resolve(__dirname, "..");
+const defaultManifest = path.join(repoRoot, "config", "skills", "repository-skills.manifest.json");
+
+function usage() {
+  console.log(`Usage:
+  scripts/audit-skills [--manifest <file>] [--json] [--personal-only] [--output <file>]
+
+Options:
+  --manifest <file>   Manifest path. Default: config/skills/repository-skills.manifest.json
+  --json              Emit JSON instead of Markdown
+  --personal-only     Scan only roots marked with scope=personal
+  --output <file>     Write output to file instead of stdout
+  -h, --help          Show this help
+`);
+}
+
+function parseArgs(argv) {
+  const args = {
+    manifest: defaultManifest,
+    json: false,
+    personalOnly: false,
+    output: "",
+  };
+
+  for (let i = 2; i < argv.length; i += 1) {
+    const token = argv[i];
+    if (token === "--manifest") {
+      args.manifest = path.resolve(argv[++i] || "");
+    } else if (token === "--json") {
+      args.json = true;
+    } else if (token === "--personal-only") {
+      args.personalOnly = true;
+    } else if (token === "--output") {
+      args.output = path.resolve(argv[++i] || "");
+    } else if (token === "-h" || token === "--help") {
+      usage();
+      process.exit(0);
+    } else {
+      throw new Error(`Unknown argument: ${token}`);
+    }
+  }
+
+  return args;
+}
+
+function readJson(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function expandPath(raw) {
+  return raw
+    .replace(/\$HOME/g, process.env.HOME || "")
+    .replace(/\$REPO/g, repoRoot);
+}
+
+function walkSkillFiles(root) {
+  if (!fs.existsSync(root)) {
+    return [];
+  }
+
+  const result = [];
+  const stack = [root];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" || entry.name === ".git") {
+          continue;
+        }
+        stack.push(fullPath);
+      } else if (entry.isFile() && entry.name === "SKILL.md") {
+        result.push(fullPath);
+      }
+    }
+  }
+  return result.sort();
+}
+
+function parseFrontMatter(file) {
+  const text = fs.readFileSync(file, "utf8");
+  const match = text.match(/^---\n([\s\S]*?)\n---/);
+  const meta = {};
+  if (!match) {
+    return meta;
+  }
+
+  for (const line of match[1].split(/\n/)) {
+    const item = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!item) {
+      continue;
+    }
+    meta[item[1]] = item[2].replace(/^["']|["']$/g, "");
+  }
+  return meta;
+}
+
+function scan(manifest, personalOnly) {
+  const rows = [];
+  for (const rootSpec of manifest.roots) {
+    if (personalOnly && rootSpec.scope !== "personal") {
+      continue;
+    }
+    const root = expandPath(rootSpec.path);
+    for (const skillFile of walkSkillFiles(root)) {
+      const rel = path.relative(root, path.dirname(skillFile));
+      const meta = parseFrontMatter(skillFile);
+      rows.push({
+        rootId: rootSpec.id,
+        rootTitle: rootSpec.title,
+        scope: rootSpec.scope,
+        rel,
+        file: skillFile,
+        name: meta.name || path.basename(path.dirname(skillFile)),
+        description: meta.description || "",
+        tags: meta.tags || "",
+      });
+    }
+  }
+  return rows.sort((a, b) => `${a.name}\0${a.rootId}\0${a.rel}`.localeCompare(`${b.name}\0${b.rootId}\0${b.rel}`));
+}
+
+function groupBy(items, keyFn) {
+  const groups = new Map();
+  for (const item of items) {
+    const key = keyFn(item);
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(item);
+  }
+  return groups;
+}
+
+function matchRule(row, rule) {
+  if (rule.name && row.name !== rule.name) {
+    return false;
+  }
+  if (rule.prefix && !row.name.startsWith(rule.prefix)) {
+    return false;
+  }
+  if (rule.regex && !new RegExp(rule.regex).test(row.name)) {
+    return false;
+  }
+  if (rule.relPrefix && !row.rel.startsWith(rule.relPrefix)) {
+    return false;
+  }
+  if (rule.rootId && row.rootId !== rule.rootId) {
+    return false;
+  }
+  return true;
+}
+
+function buildFunctionalGroups(rows, manifest) {
+  return manifest.functionalGroups
+    .map((group) => {
+      const members = rows.filter((row) => group.matches.some((rule) => matchRule(row, rule)));
+      const uniqueNames = new Set(members.map((member) => member.name));
+      return {
+        ...group,
+        members,
+        uniqueNameCount: uniqueNames.size,
+      };
+    })
+    .filter((group) => group.members.length > 1)
+    .sort((a, b) => {
+      const severityRank = { high: 0, medium: 1, low: 2 };
+      return (severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9) || a.id.localeCompare(b.id);
+    });
+}
+
+function summarize(rows, manifest) {
+  const byRoot = Array.from(groupBy(rows, (row) => row.rootId).entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([rootId, items]) => ({
+      rootId,
+      scope: items[0]?.scope || "",
+      count: items.length,
+      uniqueNames: new Set(items.map((item) => item.name)).size,
+    }));
+
+  const duplicates = Array.from(groupBy(rows, (row) => row.name).entries())
+    .filter(([, items]) => items.length > 1)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, items]) => ({ name, items }));
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totals: {
+      physical: rows.length,
+      uniqueNames: new Set(rows.map((row) => row.name)).size,
+      personalPhysical: rows.filter((row) => row.scope === "personal").length,
+      personalUniqueNames: new Set(rows.filter((row) => row.scope === "personal").map((row) => row.name)).size,
+    },
+    byRoot,
+    duplicateNames: duplicates,
+    functionalGroups: buildFunctionalGroups(rows, manifest),
+  };
+}
+
+function escapeCell(value) {
+  return String(value || "").replace(/\n/g, " ").replace(/\|/g, "\\|");
+}
+
+function memberLabel(row) {
+  return `${row.rootId}:${row.rel}`;
+}
+
+function renderMarkdown(summary) {
+  const lines = [];
+  lines.push("# Skills Audit Report");
+  lines.push("");
+  lines.push(`Generated: ${summary.generatedAt}`);
+  lines.push("");
+  lines.push("## Totals");
+  lines.push("");
+  lines.push("| Metric | Count |");
+  lines.push("|---|---:|");
+  lines.push(`| Physical SKILL.md files | ${summary.totals.physical} |`);
+  lines.push(`| Unique skill names | ${summary.totals.uniqueNames} |`);
+  lines.push(`| Personal physical installs | ${summary.totals.personalPhysical} |`);
+  lines.push(`| Personal unique skill names | ${summary.totals.personalUniqueNames} |`);
+  lines.push("");
+
+  lines.push("## By Root");
+  lines.push("");
+  lines.push("| Root | Scope | Files | Unique Names |");
+  lines.push("|---|---|---:|---:|");
+  for (const item of summary.byRoot) {
+    lines.push(`| ${escapeCell(item.rootId)} | ${escapeCell(item.scope)} | ${item.count} | ${item.uniqueNames} |`);
+  }
+  lines.push("");
+
+  lines.push("## Exact Duplicate Names");
+  lines.push("");
+  lines.push(`Duplicate skill names: ${summary.duplicateNames.length}`);
+  lines.push("");
+  lines.push("| Skill | Locations |");
+  lines.push("|---|---|");
+  for (const duplicate of summary.duplicateNames) {
+    lines.push(`| ${escapeCell(duplicate.name)} | ${escapeCell(duplicate.items.map(memberLabel).join("<br>"))} |`);
+  }
+  lines.push("");
+
+  lines.push("## Functional Overlap Candidates");
+  lines.push("");
+  lines.push("| Severity | Group | Members | Suggested canonical boundary | Recommendation |");
+  lines.push("|---|---|---|---|---|");
+  for (const group of summary.functionalGroups) {
+    const members = group.members.map((row) => `${row.name} (${memberLabel(row)})`).join("<br>");
+    lines.push(`| ${escapeCell(group.severity)} | ${escapeCell(group.title)} | ${escapeCell(members)} | ${escapeCell(group.canonical)} | ${escapeCell(group.recommendation)} |`);
+  }
+  lines.push("");
+
+  return `${lines.join("\n")}\n`;
+}
+
+function main() {
+  const args = parseArgs(process.argv);
+  const manifest = readJson(args.manifest);
+  const rows = scan(manifest, args.personalOnly);
+  const summary = summarize(rows, manifest);
+  const output = args.json ? `${JSON.stringify(summary, null, 2)}\n` : renderMarkdown(summary);
+
+  if (args.output) {
+    fs.mkdirSync(path.dirname(args.output), { recursive: true });
+    fs.writeFileSync(args.output, output);
+  } else {
+    process.stdout.write(output);
+  }
+}
+
+main();

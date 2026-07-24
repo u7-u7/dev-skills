@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "roots": [
+    {
+      "id": "repo-source",
+      "title": "DIY skill sources",
+      "path": "$REPO/skills",
+      "scope": "source"
+    }
+  ],
+  "functionalGroups": [
+    {
+      "id": "development",
+      "title": "Development workflows",
+      "severity": "medium",
+      "canonical": "Use brainstorming for design and ai-pair-programmer for implementation.",
+      "recommendation": "Use app-scanner only when application-level context is needed.",
+      "matches": [
+        { "name": "brainstorming" },
+        { "name": "ai-pair-programmer" },
+        { "name": "app-scanner" }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review and test design",
+      "severity": "medium",
+      "canonical": "Use the narrowest review skill matching the request.",
+      "recommendation": "Reserve full-review for combined reports and team-cr for meeting preparation.",
+      "matches": [
+        { "name": "author-final-review" },
+        { "name": "code-review" },
+        { "name": "integration-test" },
+        { "name": "full-review" },
+        { "name": "team-cr" }
+      ]
+    }
+  ]
+}

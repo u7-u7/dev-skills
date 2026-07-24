@@ -1,0 +1,14 @@
+# DIY skills profile
+# one skill directory per line, relative to skills/
+
+development/brainstorming
+development/ai-pair-programmer
+development/app-scanner
+review/author-final-review
+review/code-review
+review/integration-test
+review/full-review
+review/team-cr
+visualization/diagram-creation
+platform/git-worktree
+platform/skill-usage-tracker

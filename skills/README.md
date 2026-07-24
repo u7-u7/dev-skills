@@ -1,0 +1,46 @@
+# DIY Skills Index
+
+仓库当前包含 11 个技能，按职责分为四类。
+
+## Development
+
+| Skill | 触发场景 | 主要输出 |
+|---|---|---|
+| `brainstorming` | 新功能、行为修改或方案存在选择 | 经确认的设计与边界 |
+| `ai-pair-programmer` | 编写、修改、重构或测试代码 | 可验证的代码改动 |
+| `app-scanner` | 多应用工作区需要能力盘点 | 应用能力清单与应用级 `SKILL.md` |
+
+## Review
+
+| Skill | 触发场景 | 依赖 |
+|---|---|---|
+| `author-final-review` | 聚焦单一作者的最终变更 | 无 |
+| `code-review` | 深度检查质量与风险 | `author-final-review` |
+| `integration-test` | 为变更设计集成测试 | `author-final-review` |
+| `full-review` | 需要统一审查报告 | `author-final-review`、`code-review`、`integration-test` |
+| `team-cr` | 多人或多模块审查会议 | 无 |
+
+## Visualization
+
+| Skill | 触发场景 | 主要输出 |
+|---|---|---|
+| `diagram-creation` | 需要流程、结构或时序可视化 | Mermaid、PlantUML 或其他图表源码 |
+
+## Platform
+
+| Skill | 触发场景 | 主要输出 |
+|---|---|---|
+| `git-worktree` | 并行分支开发或 worktree 管理 | 标准化 worktree |
+| `skill-usage-tracker` | 执行技能或查看统计 | `~/usage_stats.json` 中的本地统计 |
+
+## 目录
+
+```text
+skills/
+├── development/
+├── review/
+├── visualization/
+└── platform/
+```
+
+每个技能目录必须自包含运行所需的说明、脚本、参考资料和模板。

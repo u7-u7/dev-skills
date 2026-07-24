@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ROOT_DIR=$(git rev-parse --show-toplevel 2>/dev/null); then
+  :
+else
+  ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
+
+PYTHON_SCRIPT="$ROOT_DIR/skills/platform/skill-usage-tracker/scripts/update_stats.py"
+
+if [ ! -f "$PYTHON_SCRIPT" ]; then
+  echo "Error: cannot find tracker script: $PYTHON_SCRIPT" >&2
+  exit 1
+fi
+
+python3 "$PYTHON_SCRIPT" "$@"

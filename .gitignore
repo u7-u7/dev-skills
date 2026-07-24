@@ -1,0 +1,53 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+node_modules/
+dist/
+build/
+*.log
+*.doc
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Local cache artifacts
+.tmp/
+skills/**/*.zip
+schema_cache_qa_main.json
+schema_cache_prod_main.json
+schema_cache_pre_main.json
+
+.cursor
+.claude
+.doc/
+.agents/
+.continue/
+.junie/
+.qoder/
+.trae/
+.windsurf/
+
+/usage_stats.json
