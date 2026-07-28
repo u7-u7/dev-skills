@@ -50,6 +50,8 @@ flowchart LR
 
 ## 快速开始
 
+### macOS / Linux
+
 在仓库根目录依次执行：
 
 ```bash
@@ -62,28 +64,41 @@ make install
 - `make install-dry-run` 只展示计划，不创建或替换软链接。
 - `make install` 同步 `config/profiles/diy.skills` 中的技能。
 
+### Windows PowerShell 5.1+
+
+Windows 不需要安装 `make` 或 Git Bash。在仓库根目录依次执行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 preview
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 install
+```
+
+- `preview` 只展示计划，不修改文件。
+- `install` 使用目录 Junction 同步技能，不要求管理员权限或开启开发者模式。
+- 如果当前 PowerShell 已允许本地脚本，也可以直接执行 `.\install.ps1 preview` 和 `.\install.ps1 install`。
+
 安装器只处理本机已检测到的客户端；未安装的客户端会自动跳过。
 
 ## 同步机制
 
-`scripts/install_team_bundle.sh` 以 profile 为入口，校验每个技能目录中的 `SKILL.md`，自动补齐 `depends_on` 依赖，然后将源码目录软链接到客户端技能目录。源码仍只保留一份，修改仓库文件后，各客户端会直接读取最新内容。
+macOS/Linux 使用 `scripts/install_team_bundle.sh`，Windows 使用 `scripts/install_team_bundle.ps1`。两个安装器都以 profile 为入口，校验每个技能目录中的 `SKILL.md`，自动补齐 `depends_on` 依赖，然后将源码目录链接到客户端技能目录。源码仍只保留一份，修改仓库文件后，各客户端会直接读取最新内容。
 
 ```mermaid
 flowchart LR
     PROFILE["config/profiles/diy.skills<br/>默认同步清单"]
     SOURCE["skills/category/skill-name<br/>唯一源码"]
-    INSTALLER["scripts/install_team_bundle.sh<br/>选择、校验、冲突处理"]
-    CURSOR["$HOME/.cursor/skills"]
-    CLAUDE["$HOME/.claude/skills"]
-    CODEX1["$HOME/.codex/skills.union"]
-    CODEX2["$HOME/.codex/skills"]
+    INSTALLER["Bash / PowerShell 安装器<br/>选择、校验、冲突处理"]
+    CURSOR["用户目录/.cursor/skills"]
+    CLAUDE["用户目录/.claude/skills"]
+    CODEX1["用户目录/.codex/skills.union"]
+    CODEX2["用户目录/.codex/skills"]
 
     PROFILE --> INSTALLER
     SOURCE --> INSTALLER
-    INSTALLER -->|"软链接"| CURSOR
-    INSTALLER -->|"软链接"| CLAUDE
-    INSTALLER -->|"软链接"| CODEX1
-    INSTALLER -->|"软链接"| CODEX2
+    INSTALLER -->|"软链接 / Junction"| CURSOR
+    INSTALLER -->|"软链接 / Junction"| CLAUDE
+    INSTALLER -->|"软链接 / Junction"| CODEX1
+    INSTALLER -->|"软链接 / Junction"| CODEX2
 
     classDef profile fill:#E1F5FE,stroke:#0288D1,color:#01579B,stroke-width:2px;
     classDef source fill:#E8F5E9,stroke:#388E3C,color:#1B5E20,stroke-width:2px;
@@ -95,13 +110,23 @@ flowchart LR
     class CURSOR,CLAUDE,CODEX1,CODEX2 target;
 ```
 
-| 客户端 | 同步目标 |
-|---|---|
-| Cursor | `$HOME/.cursor/skills` |
-| Claude Code | `$HOME/.claude/skills` |
-| Codex | `$HOME/.codex/skills.union`、`$HOME/.codex/skills` |
+### 平台与用户目录
+
+安装入口会按平台使用对应的用户目录，不会硬编码用户名：
+
+- Windows 安装器要求 `$env:OS` 为 `Windows_NT`，通过 .NET `UserProfile` 获取当前用户目录，例如 `C:\Users\<用户名>`。
+- macOS/Linux 安装器使用 `$HOME`，例如 `/Users/<用户名>` 或 `/home/<用户名>`。
+- 在 macOS/Linux 上误运行 `install.ps1` 会直接终止，并提示改用 Bash 安装器。
+
+| 客户端 | macOS / Linux | Windows |
+|---|---|---|
+| Cursor | `$HOME/.cursor/skills` | `C:\Users\<用户名>\.cursor\skills` |
+| Claude Code | `$HOME/.claude/skills` | `C:\Users\<用户名>\.claude\skills` |
+| Codex | `$HOME/.codex/skills.union`、`$HOME/.codex/skills` | `C:\Users\<用户名>\.codex\skills.union`、`C:\Users\<用户名>\.codex\skills` |
 
 ### Make 命令
+
+以下命令适用于 macOS/Linux：
 
 | 命令 | 作用 | 是否修改文件或链接 |
 |---|---|---|
@@ -115,6 +140,18 @@ flowchart LR
 | `make stats` | 查看本地技能使用统计 | 否 |
 | `make dashboard` | 打开本地统计看板 | 否 |
 | `make clean` | 清理 Python 缓存 | 是 |
+
+### Windows PowerShell 命令
+
+| 命令 | 作用 | 是否修改文件或链接 |
+|---|---|---|
+| `.\install.ps1 preview` | 预览默认 profile 的同步结果 | 否 |
+| `.\install.ps1 install` | 同步默认 profile | 是 |
+| `.\install.ps1 install -Force` | 强制覆盖冲突目标 | 是，高风险 |
+| `.\install.ps1 uninstall` | 卸载本仓库创建的 Junction | 是 |
+| `.\install.ps1 preview -Profile <name>` | 预览指定 profile | 否 |
+
+Windows 首版聚焦常用 profile 流程，暂不支持 Bash 安装器的交互选择、重命名安装和自动写回 profile。
 
 ### 安装脚本参数
 
@@ -204,6 +241,12 @@ readlink "$HOME/.codex/skills/brainstorming"
 make uninstall
 ```
 
+Windows 使用：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 uninstall
+```
+
 普通卸载是停止使用技能的首选方式。安装器会核对软链接目标，不会删除不属于本仓库的同名目录。
 
 ### 危险操作：删除源码
@@ -283,7 +326,22 @@ make clean              # 清理缓存文件
 
 ### 为什么某个客户端没有同步？
 
-安装器只处理已检测到的客户端，并要求目标父目录存在。先确认客户端或 CLI 已安装，再重新执行 `make install-dry-run`。
+安装器只处理已检测到的客户端。先确认客户端或 CLI 已安装，再执行 `make install-dry-run`；Windows 则执行 `.\install.ps1 preview`。macOS/Linux 安装器还要求目标父目录存在。
+
+### Windows 为什么提示脚本被禁止运行？
+
+Windows 执行策略可能阻止直接运行下载的脚本。可以仅为本次进程使用 `powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 preview`，无需永久修改系统执行策略。
+
+### 如何验证 Windows 安装器？
+
+在原生 Windows PowerShell 5.1 或 PowerShell 7 中执行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\windows-installer.tests.ps1
+```
+
+测试只使用系统临时目录，并覆盖 dry-run、依赖补齐、Junction、冲突、强制覆盖和安全卸载。
+非 Windows 开发机安装 PowerShell 7 后，可以追加 `-DryRunOnly` 验证 profile 和依赖逻辑，但 Junction 场景仍需在原生 Windows 运行。
 
 ### 为什么 dry-run 显示冲突但没有覆盖？
 
@@ -301,11 +359,15 @@ make clean              # 清理缓存文件
 
 ```text
 .
+├── install.ps1
 ├── config/
 │   ├── profiles/diy.skills
 │   └── skills/repository-skills.manifest.json
 ├── docs/plans/
 ├── scripts/
+│   ├── install_team_bundle.sh
+│   └── install_team_bundle.ps1
+├── tests/
 └── skills/
     ├── development/
     ├── review/
