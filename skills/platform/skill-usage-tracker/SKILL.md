@@ -4,7 +4,7 @@ description: 本仓库中每次执行任意技能都必须先触发本技能。�
 tags: platform, general
 author: youqi.sjh
 created: 2026-03-05T13:09:51Z
-updated: 2026-03-10T10:00:00Z
+updated: 2026-07-29T16:30:00Z
 ---
 
 # Skill Usage Tracker
@@ -65,6 +65,35 @@ bash "$SKILL_DIR/scripts/skill-stats" repair
 ```bash
 bash "$SKILL_DIR/scripts/skill-stats" sync-readme
 ```
+
+## 本地可视化看板
+
+仓库内置跨平台本地服务，浏览器通过固定只读接口自动加载当前用户的 `~/usage_stats.json`：
+
+```bash
+# macOS / Linux：真实统计
+make dashboard
+
+# macOS / Linux：500 次内存 Mock 数据
+make dashboard-mock
+```
+
+Windows PowerShell：
+
+```powershell
+# 真实统计
+py .\skills\platform\skill-usage-tracker\scripts\dashboard_server.py --open
+
+# 500 次内存 Mock 数据
+py .\skills\platform\skill-usage-tracker\scripts\dashboard_server.py --open --mock-count 500
+```
+
+约束：
+
+- 默认只监听 `127.0.0.1`，不上传数据，也不暴露整个仓库。
+- Mock 数据只存在于服务内存中，不读取、不修改真实统计文件。
+- 直接以 `file://` 打开页面时，使用“导入本地 JSON”作为备用方式。
+- 全部时间使用累计 `count`；7/30 天窗口基于每技能最近保留的 50 条 `history`，可能低于真实窗口次数。
 
 ## Data Path
 

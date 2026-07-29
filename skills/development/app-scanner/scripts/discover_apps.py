@@ -156,7 +156,6 @@ def find_apps(root_dir: str, exclude_dirs: List[str] = None) -> List[Dict[str, s
         exclude_dirs = [
             'node_modules', 'target', 'build', 'dist', 'out',
             '__pycache__', '.git', '.idea', '.vscode', 'vendor',
-            'openspec/changes/archive',
         ]
 
     apps = []
@@ -317,8 +316,7 @@ def main():
 
     exclude_dirs = [
         'node_modules', 'target', 'build', 'dist', 'out',
-        '__pycache__', '.git', '.idea', '.vscode', 'vendor',
-        'openspec/changes/archive'
+        '__pycache__', '.git', '.idea', '.vscode', 'vendor'
     ]
     if args.exclude:
         exclude_dirs.extend(args.exclude)

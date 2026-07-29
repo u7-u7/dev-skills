@@ -1,6 +1,6 @@
 # Agents & Skills 管理
 
-最后更新：2026-07-24
+最后更新：2026-07-29
 
 ## 强制规则
 
@@ -14,6 +14,7 @@
 - **brainstorming** - 需求分析与方案设计
 - **ai-pair-programmer** - AI 结对编程
 - **app-scanner** - 应用扫描与能力提取
+- **sdd-dev-workflow** - 需求、代码扫描、技术方案、Plan 与 Tasks 编排
 
 ## Review
 

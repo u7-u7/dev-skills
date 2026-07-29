@@ -1,14 +1,15 @@
 # DIY Skills Index
 
-仓库当前包含 11 个技能，按职责分为四类。
+仓库当前包含 12 个技能，按职责分为四类。
 
 ## Development
 
 | Skill | 触发场景 | 主要输出 |
 |---|---|---|
 | `brainstorming` | 新功能、行为修改或方案存在选择 | 经确认的设计与边界 |
-| `ai-pair-programmer` | 编写、修改、重构或测试代码 | 可验证的代码改动 |
 | `app-scanner` | 多应用工作区需要能力盘点 | 应用能力清单与应用级 `SKILL.md` |
+| `sdd-dev-workflow` | 从原始需求或 PRD 准备开发任务 | 需求基线、代码证据、技术方案、Plan 与 Tasks |
+| `ai-pair-programmer` | 编写、修改、重构或测试代码 | 可验证的代码改动 |
 
 ## Review
 

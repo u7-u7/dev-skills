@@ -13,12 +13,13 @@
       "id": "development",
       "title": "Development workflows",
       "severity": "medium",
-      "canonical": "Use brainstorming for design and ai-pair-programmer for implementation.",
-      "recommendation": "Use app-scanner only when application-level context is needed.",
+      "canonical": "Use brainstorming for open-ended discovery, sdd-dev-workflow for requirement-to-task planning, and ai-pair-programmer for implementation.",
+      "recommendation": "Use app-scanner for multi-application context. sdd-dev-workflow must inspect code and stop at tasks unless implementation is explicitly requested.",
       "matches": [
         { "name": "brainstorming" },
-        { "name": "ai-pair-programmer" },
-        { "name": "app-scanner" }
+        { "name": "app-scanner" },
+        { "name": "sdd-dev-workflow" },
+        { "name": "ai-pair-programmer" }
       ]
     },
     {

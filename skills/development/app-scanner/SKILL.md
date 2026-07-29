@@ -1,6 +1,6 @@
 ---
 name: app-scanner
-description: 应用扫描与能力提取技能。扫描工作区中所有后端和前端应用（支持 Java/Go/Node.js/Python 及 React/Vue/Angular 等前端框架），分析代码结构，生成各应用的业务能力清单（业务描述、API清单、数据模型、外部依赖）。生成的技能文件同时支持 Claude Code (.claude/skills/)、Cursor (.cursor/skills/)、Codex (.codex/skills/) 三个目录。无需应用预先包含 openspec/ 目录。
+description: 应用扫描与能力提取技能。扫描工作区中所有后端和前端应用（支持 Java/Go/Node.js/Python 及 React/Vue/Angular 等前端框架），分析代码结构，生成各应用的业务能力清单（业务描述、API清单、数据模型、外部依赖）。生成的技能文件同时支持 Claude Code (.claude/skills/)、Cursor (.cursor/skills/)、Codex (.codex/skills/) 三个目录，无需应用预先采用特定文档规范。
 ---
 
 # 应用扫描与能力提取
@@ -14,7 +14,7 @@ description: 应用扫描与能力提取技能。扫描工作区中所有后端�
 - **Cursor**: `.cursor/skills/`
 - **Codex**: `.codex/skills/`
 
-支持自动识别项目类型，无需预先配置 openspec。
+支持自动识别项目类型，无需预先配置特定文档或开发规范。
 
 ## 何时使用
 
@@ -53,7 +53,6 @@ description: 应用扫描与能力提取技能。扫描工作区中所有后端�
 - `__pycache__/` - Python 缓存目录
 - `.git/`, `.idea/`, `.vscode/` - IDE 和版本控制目录
 - `vendor/` - 第三方依赖目录
-- `openspec/changes/archive/` - OpenSpec 归档目录
 
 ## 工作流程
 
@@ -972,6 +971,11 @@ AI: 检查应用变更...
 
 ## 与其他技能的集成
 
+### sdd-dev-workflow
+
+- 提供应用职责、接口、数据模型和外部依赖证据
+- 用于确认技术方案的影响应用、跨应用依赖和实施顺序
+
 ### ai-pair-programmer
 
 - **读取** `.claude/skills/*/SKILL.md` 的 frontmatter
@@ -981,7 +985,3 @@ AI: 检查应用变更...
 
 - 在项目初始化前，确保应用已被扫描
 - 提示用户运行 `/scan-apps` 如果 `.claude/skills/`（或 `.cursor/skills/` / `.codex/skills/`）目录不存在
-
-## 参考资料
-
-- [OpenSpec 规范](https://github.com/Fission-AI/OpenSpec)

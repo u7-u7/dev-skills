@@ -10,7 +10,7 @@
 
 这将：
 1. 扫描当前工作区
-2. 查找所有后端和前端应用（无需预先配置 openspec）
+2. 查找所有后端和前端应用（无需预先配置特定文档规范）
 3. 分析每个应用的代码结构
 4. **同时生成技能文件到三个平台**：
    - `.claude/skills/*/SKILL.md`
@@ -423,4 +423,3 @@ ai-pair-programmer
 ## 相关文档
 
 - [app-scanner 技能定义](../SKILL.md)
-- [OpenSpec 官方文档](https://github.com/Fission-AI/OpenSpec)

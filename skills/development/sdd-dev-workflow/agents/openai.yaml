@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD 开发工作流"
+  short_description: "扫描工作区代码，从需求生成技术方案、实施计划与可执行开发任务"
+  default_prompt: "使用 $sdd-dev-workflow，基于这份需求和真实代码证据生成需求文档、技术方案、实施计划与任务清单。"

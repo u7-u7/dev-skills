@@ -7,16 +7,22 @@
   <style>
     :root {
       --bg: #f3f8fb;
-      --card: rgba(255, 255, 255, 0.88);
+      --card: #eef6ff;
       --text: #14213d;
-      --muted: #5a667c;
-      --line: #d8e1ef;
+      --muted: #526178;
+      --line: #cbd9ec;
       --primary: #2563eb;
       --primary-soft: #dbeafe;
       --success: #059669;
       --warning: #d97706;
+      --surface-blue: #eaf3ff;
+      --surface-mint: #eafaf3;
+      --surface-lilac: #f2edff;
+      --surface-peach: #fff1e7;
+      --surface-rose: #fff0f4;
+      --surface-cream: #fff8e8;
       --shadow-lg: 0 14px 32px rgba(37, 99, 235, 0.09);
-      --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.06);
+      --shadow-sm: 0 8px 22px rgba(67, 91, 132, 0.09);
     }
     * { box-sizing: border-box; }
     body {
@@ -60,12 +66,11 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      background: var(--card);
-      border: 1px solid var(--line);
+      background: linear-gradient(135deg, #eaf3ff 0%, #f2edff 100%);
+      border: 1px solid #c9d8f0;
       border-radius: 12px;
       padding: 10px;
       box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(5px);
     }
     .toolbar input[type="text"] {
       width: 360px;
@@ -75,16 +80,22 @@
       padding: 8px 10px;
       font-size: 13px;
       color: var(--text);
-      background: #fff;
+      background: #f8fbff;
     }
     .toolbar button, .toolbar label {
       border: 1px solid var(--line);
-      background: #fff;
+      background: #f5f8ff;
       border-radius: 8px;
       padding: 7px 10px;
       font-size: 13px;
       cursor: pointer;
       color: var(--text);
+      transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .toolbar button:not(.primary):hover,
+    .toolbar > label:hover {
+      background: #e3edff;
+      border-color: #aac4ed;
     }
     .toolbar button.primary {
       background: var(--primary);
@@ -92,13 +103,13 @@
       color: #fff;
     }
     .toolbar button.range {
-      background: #fff;
+      background: #f5f8ff;
       border-color: var(--line);
       color: #1f2937;
     }
     .toolbar button.range.active {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      border-color: #3159cc;
       color: #fff;
     }
     .toolbar label input[type="file"] { display: none; }
@@ -116,7 +127,16 @@
       padding: 7px 10px;
       font-size: 13px;
       color: var(--text);
-      background: #fff;
+      background: #f8fbff;
+    }
+    .toolbar button:focus-visible,
+    .toolbar input:focus-visible,
+    .toolbar label:focus-visible,
+    .quick-link:focus-visible,
+    .bar-row:focus-visible,
+    tr.skill-row:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.42);
+      outline-offset: 2px;
     }
     .status {
       margin: 10px 0 16px;
@@ -126,10 +146,14 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      background: rgba(255, 255, 255, 0.52);
-      border: 1px solid rgba(216, 225, 239, 0.8);
+      background: linear-gradient(90deg, #eafaf3, #eaf3ff);
+      border: 1px solid #bfe3d3;
       border-radius: 10px;
       padding: 9px 12px;
+    }
+    .status.mock {
+      background: linear-gradient(90deg, #fff1e7, #fff0f4);
+      border-color: #efc8b2;
     }
     .dot {
       width: 9px;
@@ -138,6 +162,7 @@
       background: var(--success);
       display: inline-block;
     }
+    .dot.mock { background: var(--warning); }
     .grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -150,8 +175,29 @@
       border-radius: 12px;
       padding: 12px;
       box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(4px);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
     }
+    .card:hover { box-shadow: 0 10px 26px rgba(67, 91, 132, 0.13); }
+    .metric-blue {
+      background: linear-gradient(145deg, #eaf3ff, #f2f7ff);
+      border-color: #c8dcf6;
+    }
+    .metric-mint {
+      background: linear-gradient(145deg, #eafaf3, #f2fcf8);
+      border-color: #bfe8d4;
+    }
+    .metric-lilac {
+      background: linear-gradient(145deg, #f2edff, #f8f5ff);
+      border-color: #d9cdf8;
+    }
+    .metric-peach {
+      background: linear-gradient(145deg, #fff1e7, #fff7f1);
+      border-color: #f1d0b7;
+    }
+    .metric-blue .metric-value { color: #1d4ed8; }
+    .metric-mint .metric-value { color: #047857; }
+    .metric-lilac .metric-value { color: #6d28d9; }
+    .metric-peach .metric-value { color: #b45309; }
     .metric-title {
       color: var(--muted);
       font-size: 12px;
@@ -168,13 +214,24 @@
       color: var(--muted);
     }
     .panel {
-      background: var(--card);
+      background: linear-gradient(145deg, #eef6ff, #f4f1ff);
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 12px;
       box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(4px);
+    }
+    .panel-chart {
+      background: linear-gradient(155deg, #eafaf3, #eef6ff);
+      border-color: #bfded8;
+    }
+    .panel-table {
+      background: linear-gradient(155deg, #eaf3ff, #f2edff);
+      border-color: #cbd7ef;
+    }
+    .panel-detail {
+      background: linear-gradient(155deg, #f2edff, #fff0f4);
+      border-color: #dacff2;
     }
     .panel h3 {
       margin: 0 0 10px;
@@ -223,9 +280,12 @@
       padding: 4px 6px;
       border-radius: 8px;
       cursor: pointer;
+      transition: background-color 180ms ease, box-shadow 180ms ease;
     }
-    .bar-row:hover {
-      background: #eff5ff;
+    .bar-row:hover,
+    .bar-row:focus-visible {
+      background: #dbeaff;
+      box-shadow: inset 3px 0 #2563eb;
     }
     .bar-name {
       overflow: hidden;
@@ -259,6 +319,7 @@
       font-size: 13px;
       border-radius: 8px;
       overflow: hidden;
+      background: rgba(248, 251, 255, 0.58);
     }
     th, td {
       border-bottom: 1px solid var(--line);
@@ -269,7 +330,7 @@
     th {
       font-size: 12px;
       color: var(--muted);
-      background: #f4f8ff;
+      background: #e5effc;
       font-weight: 600;
     }
     td.rank { width: 56px; color: var(--muted); }
@@ -280,9 +341,15 @@
     td.trend { width: 110px; }
     tr.skill-row {
       cursor: pointer;
+      transition: background-color 180ms ease, box-shadow 180ms ease;
     }
-    tr.skill-row:hover {
-      background: #eff5ff;
+    tbody tr:nth-child(even) {
+      background: rgba(234, 243, 255, 0.46);
+    }
+    tr.skill-row:hover,
+    tr.skill-row:focus-visible {
+      background: #dbeaff;
+      box-shadow: inset 3px 0 #2563eb;
     }
     .tag {
       display: inline-block;
@@ -305,9 +372,12 @@
       border: 1px dashed var(--line);
       border-radius: 10px;
       font-size: 13px;
+      background: rgba(248, 251, 255, 0.62);
     }
     .quickstart {
       padding: 14px;
+      background: linear-gradient(145deg, #fff8e8, #fff0f4);
+      border-color: #ead6c6;
     }
     .quickstart-grid {
       display: grid;
@@ -316,10 +386,19 @@
       margin-top: 10px;
     }
     .quick-card {
-      background: linear-gradient(165deg, #ffffff 0%, #f4f9ff 100%);
+      background: var(--surface-blue);
       border: 1px solid #d7e6ff;
       border-radius: 10px;
       padding: 10px;
+      min-width: 0;
+    }
+    .quick-card-macos {
+      background: linear-gradient(155deg, #eafaf3, #eaf3ff);
+      border-color: #bfe2d8;
+    }
+    .quick-card-windows {
+      background: linear-gradient(155deg, #f2edff, #fff1e7);
+      border-color: #ddcff0;
     }
     .quick-title {
       font-size: 13px;
@@ -332,6 +411,7 @@
       color: var(--muted);
       line-height: 1.55;
       margin: 6px 0 0;
+      overflow-wrap: anywhere;
     }
     .quick-code {
       margin: 0;
@@ -348,22 +428,32 @@
       color: #1d4ed8;
       font-weight: 600;
       text-decoration: none;
+      overflow-wrap: anywhere;
     }
     .quick-link:hover {
       text-decoration: underline;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
     }
     @media (max-width: 980px) {
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .bar-row { grid-template-columns: 150px 1fr 48px; }
       .content-layout { grid-template-columns: 1fr; }
       .skill-info-panel { position: static; }
-      .quickstart-grid { grid-template-columns: 1fr; }
+      .quickstart-grid { grid-template-columns: minmax(0, 1fr); }
     }
     @media (max-width: 640px) {
       .grid { grid-template-columns: 1fr; }
       .bar-row { grid-template-columns: 110px 1fr 42px; }
       .toolbar { width: 100%; }
+      .toolbar > * { min-width: 0; }
       .toolbar input[type="text"] { width: 100%; }
+      .toolbar input[type="date"] { max-width: 100%; }
+      .toolbar button, .toolbar > label { min-height: 40px; }
       .title { font-size: 20px; }
     }
   </style>
@@ -373,16 +463,16 @@
     <div class="header">
       <div>
         <h1 class="title">📊 Skill 使用频率看板</h1>
-        <p class="subtitle">基于统一统计文件，自动刷新展示技能使用次数、占比与近7天热度</p>
+        <p class="subtitle">自动读取本机统计，也可以一键切换到几百次 Mock 演示数据 ✨</p>
       </div>
       <div class="toolbar">
-        <input id="sourceInput" type="text" value="~/usage_stats.json" placeholder="输入 JSON 路径（支持 /xxx 或 ~/xxx）">
+        <input id="sourceInput" type="text" value="/api/usage-stats" placeholder="输入 JSON URL，默认使用本地统计 API">
         <button id="loadBtn" class="primary">加载</button>
-        <label>导入本地 JSON
+        <label id="fileTrigger" role="button" tabindex="0">导入本地 JSON
           <input id="fileInput" type="file" accept="application/json">
         </label>
-        <button id="rangeAllBtn" class="range" type="button">全部时间</button>
-        <button id="range7Btn" class="range active" type="button">最近7天</button>
+        <button id="rangeAllBtn" class="range active" type="button">全部时间</button>
+        <button id="range7Btn" class="range" type="button">最近7天</button>
         <button id="range30Btn" class="range" type="button">最近30天</button>
         <span class="toggle">
           <input id="customRangeEnabled" type="checkbox">
@@ -406,40 +496,42 @@
     <div class="panel quickstart">
       <h3>🚀 快速开始（启动命令与教程）</h3>
       <div class="quickstart-grid">
-        <div class="quick-card">
-          <div class="quick-title">方式一：HTTP 本地服务（推荐）</div>
-          <pre class="quick-code"><code>cd &lt;repo-root&gt;/dev-skill
-python3 -m http.server 8000</code></pre>
+        <div class="quick-card quick-card-macos">
+          <div class="quick-title">🍎🐧 macOS / Linux</div>
+          <pre class="quick-code"><code>make dashboard
+make dashboard-mock  # 内存生成 500 次</code></pre>
           <p class="quick-note">
             启动后访问：
-            <a class="quick-link" target="_blank" href="http://localhost:8000/skills/platform/skill-usage-tracker/dashboard/index.html">http://localhost:8000/skills/platform/skill-usage-tracker/dashboard/index.html</a>
+            <a class="quick-link" target="_blank" href="http://127.0.0.1:8000/dashboard/">http://127.0.0.1:8000/dashboard/</a>
           </p>
         </div>
-        <div class="quick-card">
-          <div class="quick-title">方式二：直接打开 HTML（备用）</div>
-          <pre class="quick-code"><code>open skills/platform/skill-usage-tracker/dashboard/index.html</code></pre>
-          <p class="quick-note">如果是 file:// 打开，浏览器通常禁止 fetch 本地 JSON。页面会自动提示导入本地文件，或引导你切回方式一。</p>
+        <div class="quick-card quick-card-windows">
+          <div class="quick-title">🪟 Windows PowerShell</div>
+          <pre class="quick-code"><code>py .\skills\platform\skill-usage-tracker\scripts\dashboard_server.py --open
+py .\skills\platform\skill-usage-tracker\scripts\dashboard_server.py --open --mock-count 500</code></pre>
+          <p class="quick-note">服务只监听 127.0.0.1，不会上传数据。直接打开 HTML 时，仍可点击“导入本地 JSON”作为备用方案。</p>
         </div>
       </div>
+      <p class="quick-note">ℹ️ 7/30 天窗口基于每个技能最近保留的 50 条历史记录，高频技能的窗口值可能低于真实次数；“全部时间”使用准确累计值。</p>
     </div>
 
     <div class="grid">
-      <div class="card">
+      <div class="card metric-blue">
         <div class="metric-title">总调用次数</div>
         <div id="totalUsage" class="metric-value">-</div>
-        <div class="metric-sub">来自 JSON 的 total_usage</div>
+        <div class="metric-sub">全部时间为准确累计值</div>
       </div>
-      <div class="card">
+      <div class="card metric-mint">
         <div class="metric-title">技能总数</div>
         <div id="skillCount" class="metric-value">-</div>
         <div class="metric-sub">出现过使用记录的技能</div>
       </div>
-      <div class="card">
+      <div class="card metric-lilac">
         <div class="metric-title">最常用技能</div>
         <div id="topSkill" class="metric-value" style="font-size:18px;">-</div>
         <div id="topSkillCount" class="metric-sub">-</div>
       </div>
-      <div class="card">
+      <div class="card metric-peach">
         <div class="metric-title">最近活跃</div>
         <div id="latestUsed" class="metric-value" style="font-size:18px;">-</div>
         <div class="metric-sub">按 last_used 排序</div>
@@ -448,12 +540,12 @@ python3 -m http.server 8000</code></pre>
 
     <div class="content-layout">
       <div class="content-main">
-        <div class="panel">
-          <h3>📈 使用频率 Top 12</h3>
+        <div class="panel panel-chart">
+          <h3>📈 使用频率 TOP 10</h3>
           <div id="bars" class="bars"></div>
         </div>
 
-        <div class="panel">
+        <div class="panel panel-table">
           <h3>🧾 全量技能排行</h3>
           <div style="overflow:auto;">
             <table>
@@ -474,7 +566,7 @@ python3 -m http.server 8000</code></pre>
         </div>
       </div>
 
-      <aside class="panel skill-info-panel">
+      <aside class="panel skill-info-panel panel-detail">
         <h3>🧠 技能简介</h3>
         <div id="skillInfoName" class="skill-info-name">悬停技能查看说明</div>
         <div id="skillInfoDesc" class="skill-info-desc">将鼠标移动到左侧榜单任意 skill，或点击 skill 行，即可在这里看到简介。</div>
@@ -487,6 +579,7 @@ python3 -m http.server 8000</code></pre>
     const sourceInput = document.getElementById("sourceInput");
     const loadBtn = document.getElementById("loadBtn");
     const fileInput = document.getElementById("fileInput");
+    const fileTrigger = document.getElementById("fileTrigger");
     const rangeAllBtn = document.getElementById("rangeAllBtn");
     const range7Btn = document.getElementById("range7Btn");
     const range30Btn = document.getElementById("range30Btn");
@@ -496,6 +589,8 @@ python3 -m http.server 8000</code></pre>
     const autoRefresh = document.getElementById("autoRefresh");
     const statusText = document.getElementById("statusText");
     const refreshText = document.getElementById("refreshText");
+    const statusDot = document.querySelector(".status .dot");
+    const statusBar = document.querySelector(".status");
 
     const totalUsageEl = document.getElementById("totalUsage");
     const skillCountEl = document.getElementById("skillCount");
@@ -512,7 +607,7 @@ python3 -m http.server 8000</code></pre>
     let timer = null;
     let currentMode = "fetch"; // fetch | file
     let currentFileContent = null;
-    let rangeMode = "7d"; // all | 7d | 30d | custom
+    let rangeMode = "all"; // all | 7d | 30d | custom
     let lastLoadedRaw = null;
     let lastSourceLabel = "";
     const descriptionCache = {};
@@ -679,6 +774,19 @@ python3 -m http.server 8000</code></pre>
       return "";
     }
 
+    function sourceLabelFor(raw, path) {
+      const meta = raw && typeof raw === "object" ? (raw._meta || {}) : {};
+      if (meta.source_label) return String(meta.source_label);
+      if (path === "/api/usage-stats") return "🏠 本机统计 ~/usage_stats.json";
+      return `🔗 自定义来源：${path}`;
+    }
+
+    function updateSourceAppearance(raw) {
+      const sourceKind = raw?._meta?.source_kind || "real";
+      statusDot.classList.toggle("mock", sourceKind === "mock");
+      statusBar.classList.toggle("mock", sourceKind === "mock");
+    }
+
     function candidateSkillMdPaths(skillName) {
       const absolutePaths = skillGroups.map(g => `/skills/${g}/${skillName}/SKILL.md`);
       const relativePaths = skillGroups.map(g => `../../../${g}/${skillName}/SKILL.md`);
@@ -703,6 +811,23 @@ python3 -m http.server 8000</code></pre>
     async function getSkillDescription(skillName) {
       if (!skillName) return "无技能说明";
       if (descriptionCache[skillName]) return descriptionCache[skillName];
+
+      if (location.protocol !== "file:") {
+        try {
+          const apiPath = `/api/skill-description/${encodeURIComponent(skillName)}`;
+          const res = await fetch(buildFetchUrl(apiPath), { cache: "no-store" });
+          if (res.ok) {
+            const raw = await res.json();
+            const desc = String(raw?.description || "").trim();
+            if (desc) {
+              descriptionCache[skillName] = desc;
+              return desc;
+            }
+          }
+        } catch (err) {
+          // Continue with the file:// compatible fallback below.
+        }
+      }
 
       const paths = candidateSkillMdPaths(skillName);
       for (const p of paths) {
@@ -750,6 +875,14 @@ python3 -m http.server 8000</code></pre>
           showSkillInfo(skill, row, windowLabel);
         });
         el.addEventListener("click", () => {
+          showSkillInfo(skill, row, windowLabel);
+        });
+        el.addEventListener("focus", () => {
+          showSkillInfo(skill, row, windowLabel);
+        });
+        el.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
           showSkillInfo(skill, row, windowLabel);
         });
       });
@@ -851,12 +984,12 @@ python3 -m http.server 8000</code></pre>
       }
 
       const maxCount = Math.max(...rows.map(r => r.count), 1);
-      const topRows = rows.slice(0, 12);
+      const topRows = rows.slice(0, 10);
       barsEl.innerHTML = topRows.map(r => {
         const width = Math.max(3, Math.round((r.count / maxCount) * 100));
         const hint = compactDesc(descriptionCache[r.name] || "悬停查看简介", 36);
         return `
-          <div class="bar-row" data-skill="${escapeHtml(r.name)}" title="${escapeHtml(hint)}">
+          <div class="bar-row" data-skill="${escapeHtml(r.name)}" title="${escapeHtml(hint)}" role="button" tabindex="0">
             <div class="bar-name">${escapeHtml(r.name)}</div>
             <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
             <div class="bar-val">${r.count}</div>
@@ -870,7 +1003,7 @@ python3 -m http.server 8000</code></pre>
         const lastUsedToShow = r.windowLastUsed || r.lastUsed;
         const hint = compactDesc(descriptionCache[r.name] || "悬停查看右侧说明", 44);
         return `
-          <tr class="skill-row" data-skill="${escapeHtml(r.name)}">
+          <tr class="skill-row" data-skill="${escapeHtml(r.name)}" tabindex="0">
             <td class="rank">${idx + 1}</td>
             <td title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</td>
             <td class="count">${r.count}</td>
@@ -900,54 +1033,30 @@ python3 -m http.server 8000</code></pre>
       }
       const raw = await res.json();
       lastLoadedRaw = raw;
-      lastSourceLabel = path;
+      lastSourceLabel = sourceLabelFor(raw, path);
+      updateSourceAppearance(raw);
       renderFromCachedData();
-    }
-
-    async function loadWithFallback(paths) {
-      const tried = [];
-      for (const p of paths) {
-        if (!p) continue;
-        try {
-          await loadFromPath(p);
-          return p;
-        } catch (err) {
-          tried.push(`${p}(${err.message})`);
-        }
-      }
-      throw new Error(`全部数据源读取失败：${tried.join(" ; ")}`);
     }
 
     async function loadNow() {
       try {
         if (location.protocol === "file:" && currentMode === "fetch") {
-          statusText.textContent = "当前是 file:// 打开，浏览器禁止 fetch 本地文件。请在仓库根目录执行：python3 -m http.server 8000，再访问 /skills/platform/skill-usage-tracker/dashboard/index.html";
+          statusText.textContent = "当前是 file:// 打开，浏览器不能自动读取用户目录。请运行 make dashboard（Windows 运行 dashboard_server.py），或点击“导入本地 JSON”。";
           refreshText.textContent = "";
           return;
         }
 
         if (currentMode === "file" && currentFileContent) {
           lastLoadedRaw = currentFileContent;
-          lastSourceLabel = "本地文件";
+          lastSourceLabel = sourceLabelFor(currentFileContent, "本地文件");
+          updateSourceAppearance(currentFileContent);
           renderFromCachedData();
           refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
           return;
         }
         let path = sourceInput.value.trim();
-        if (!path) throw new Error("JSON 路径为空");
-        if (path.startsWith("~/")) {
-          throw new Error("浏览器不能直接读取 ~/ 路径，请使用“导入本地 JSON”选择 ~/usage_stats.json");
-        }
-
-        const defaultUnifiedPath = "~/usage_stats.json";
-        const sourceUsed = await loadWithFallback(
-          path === defaultUnifiedPath
-            ? [path]
-            : [path]
-        );
-        if (sourceUsed !== path) {
-          sourceInput.value = sourceUsed;
-        }
+        if (!path) throw new Error("JSON URL 为空");
+        await loadFromPath(path);
         refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
       } catch (err) {
         statusText.textContent = `加载失败：${err.message}`;
@@ -1009,8 +1118,8 @@ python3 -m http.server 8000</code></pre>
       // 这里给出明确引导并在常见默认路径下自动打开文件选择器。
       if (location.protocol === "file:") {
         const path = sourceInput.value.trim();
-        if (!path || path === "~/usage_stats.json" || path === "/usage_stats.json") {
-          statusText.textContent = "当前是 file:// 打开，浏览器禁止 fetch 本地文件。已自动打开文件选择器，请选择 ~/usage_stats.json；或在仓库根目录执行：python3 -m http.server 8000 后改用 http://localhost:8000 访问。";
+        if (!path || path === "/api/usage-stats" || path === "~/usage_stats.json") {
+          statusText.textContent = "当前是 file:// 打开，已打开文件选择器，请选择 usage_stats.json；也可以运行 make dashboard，让页面自动读取。";
           refreshText.textContent = "";
           fileInput.value = "";
           fileInput.click();
@@ -1030,13 +1139,20 @@ python3 -m http.server 8000</code></pre>
         currentFileContent = JSON.parse(text);
         currentMode = "file";
         lastLoadedRaw = currentFileContent;
-        lastSourceLabel = `本地文件：${f.name}`;
+        lastSourceLabel = currentFileContent?._meta?.source_label || `📁 本地文件：${f.name}`;
+        updateSourceAppearance(currentFileContent);
         renderFromCachedData();
         refreshText.textContent = `最近刷新：${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
         setupAutoRefresh();
       } catch (err) {
         statusText.textContent = `文件解析失败：${err.message}`;
       }
+    });
+
+    fileTrigger.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      fileInput.click();
     });
 
     autoRefresh.addEventListener("change", setupAutoRefresh);

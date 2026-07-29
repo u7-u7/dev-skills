@@ -2,9 +2,11 @@
 
 ## 开发链路
 
-1. `brainstorming` 明确需求、边界、候选方案和验证标准。
-2. 多应用工作区按需使用 `app-scanner` 补充应用上下文。
-3. `ai-pair-programmer` 完成实现、测试和交付说明。
+1. 需求仍处于开放探索阶段时，先用 `brainstorming` 明确目标、边界和方案取舍。
+2. `sdd-dev-workflow` 把原始需求或 PRD 整理为结构化需求，并强制扫描工作区代码。
+3. 多应用工作区由 `app-scanner` 补充应用能力、依赖关系和影响范围；单仓直接读取真实代码证据。
+4. `sdd-dev-workflow` 继续生成技术方案、`plan.md` 和 `tasks.md`，默认在任务拆分处收口。
+5. 用户明确要求实现后，`ai-pair-programmer` 承接任务、代码修改、测试和交付说明。
 
 ## 审查链路
 
@@ -16,6 +18,6 @@
 
 ## 辅助能力
 
-- `diagram-creation`：把复杂关系转换为图表。
+- `diagram-creation`：按需为技术方案补充流程图、架构图或时序图。
 - `git-worktree`：隔离并行开发分支。
 - `skill-usage-tracker`：记录本地使用数据。

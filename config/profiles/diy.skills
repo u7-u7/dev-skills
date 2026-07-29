@@ -2,8 +2,9 @@
 # one skill directory per line, relative to skills/
 
 development/brainstorming
-development/ai-pair-programmer
 development/app-scanner
+development/sdd-dev-workflow
+development/ai-pair-programmer
 review/author-final-review
 review/code-review
 review/integration-test

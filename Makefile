@@ -1,4 +1,7 @@
-.PHONY: help stats sync-readme-stats dashboard clean audit-skills install install-dry-run install-force uninstall uninstall-force remove-skills remove-skills-dry-run
+.PHONY: help stats sync-readme-stats dashboard dashboard-mock dashboard-test clean audit-skills install install-dry-run install-force uninstall uninstall-force remove-skills remove-skills-dry-run
+
+DASHBOARD_PORT ?= 8000
+MOCK_COUNT ?= 500
 
 help:
 	@echo "可用命令："
@@ -8,6 +11,8 @@ help:
 	@echo "  make audit-skills       - 审计技能数量、重名和功能重叠"
 	@echo "  make stats              - 查看技能使用统计"
 	@echo "  make dashboard          - 启动本地统计看板"
+	@echo "  make dashboard-mock     - 用 500 次内存 Mock 数据预览看板"
+	@echo "  make dashboard-test     - 运行看板服务测试"
 	@echo "  make clean              - 清理缓存文件"
 
 install:
@@ -35,15 +40,13 @@ sync-readme-stats:
 	@./scripts/skill-stats sync-readme
 
 dashboard:
-	@URL="http://localhost:8000/skills/platform/skill-usage-tracker/dashboard/index.html"; \
-	LOG_FILE="/tmp/diy-skills-dashboard.log"; \
-	if command -v lsof >/dev/null 2>&1 && lsof -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then \
-		open "$$URL"; \
-	else \
-		nohup python3 -m http.server 8000 >"$$LOG_FILE" 2>&1 & \
-		sleep 1; \
-		open "$$URL"; \
-	fi
+	@python3 skills/platform/skill-usage-tracker/scripts/dashboard_server.py --port $(DASHBOARD_PORT) --open
+
+dashboard-mock:
+	@python3 skills/platform/skill-usage-tracker/scripts/dashboard_server.py --port $(DASHBOARD_PORT) --mock-count $(MOCK_COUNT) --open
+
+dashboard-test:
+	@python3 -m unittest discover -s tests -p 'test_dashboard_server.py'
 
 clean:
 	@find . -name "*.pyc" -delete
