@@ -32,13 +32,12 @@ MOCK_SKILLS = (
     "code-review",
     "diagram-creation",
     "full-review",
-    "git-worktree",
     "integration-test",
     "sdd-dev-workflow",
     "skill-usage-tracker",
     "team-cr",
 )
-MOCK_WEIGHTS = (50, 49, 47, 45, 44, 43, 42, 41, 39, 37, 34, 29)
+MOCK_WEIGHTS = (50, 49, 47, 45, 44, 43, 42, 39, 37, 34, 29)
 
 
 def empty_stats() -> dict[str, Any]:

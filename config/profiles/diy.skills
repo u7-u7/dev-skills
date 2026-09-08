@@ -12,5 +12,4 @@ review/integration-test
 review/full-review
 review/team-cr
 visualization/diagram-creation
-platform/git-worktree
 platform/skill-usage-tracker

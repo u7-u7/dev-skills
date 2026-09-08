@@ -14,13 +14,13 @@
 | 🛠️ Development | `app-scanner` | 🔍 扫描多应用工作区并提取业务能力 |
 | 🛠️ Development | `sdd-dev-workflow` | 🧭 从需求出发，扫描代码并生成技术方案、Plan 与 Tasks |
 | 🛠️ Development | `ai-pair-programmer` | 🤝 分析代码库、实现改动并完成验证 |
+| 🛠️ Development | `developer-resume-writer` | ✍️ 根据项目或现有简历，整理项目简介和项目亮点 |
 | 🧪 Review | `author-final-review` | 👤 审查指定作者的最终代码状态 |
 | 🧪 Review | `code-review` | 🛡️ 检查代码质量、安全、性能和架构风险 |
 | 🧪 Review | `integration-test` | 🎯 根据变更风险设计集成测试用例 |
 | 🧪 Review | `full-review` | 📦 汇总代码审查、影响分析和测试设计 |
 | 🧪 Review | `team-cr` | 👥 为多人代码审查会议生成讨论清单 |
 | 🎨 Visualization | `diagram-creation` | 🗺️ 创建流程图、架构图、时序图和学习路线 |
-| ⚙️ Platform | `git-worktree` | 🌿 创建和管理 Git worktree |
 | ⚙️ Platform | `skill-usage-tracker` | 📊 记录和查看本地技能使用统计 |
 
 想看看它们什么时候会自动出现、彼此怎么组队？详细触发方式与依赖关系都藏在 [skills/README.md](skills/README.md) 里啦 📚✨
@@ -92,6 +92,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 install
 - 如果当前 PowerShell 已允许本地脚本，也可以直接执行 `.\install.ps1 preview` 和 `.\install.ps1 install`，少敲一点字更轻松 🐇
 
 看到完成提示后，重新打开客户端，就可以愉快地召唤技能啦 🎊 安装器只处理本机已检测到的客户端；未安装的客户端会乖乖跳过，不会乱动其他目录 🐾
+
+## 🤖 在 AI IDE 里用提示词同步
+
+Codex、Claude Code、Cursor 等支持终端操作的 AI IDE，都可以直接把下面的提示词交给 AI。它会先检查本地仓库与未提交改动，再拉取远端、审计 profile，并且只预演 Codex 的安装计划：
+
+```text
+请更新本地的 https://github.com/u7-u7/dev-skills 技能管理仓库。
+如果仓库还没有克隆，请拉取到 <本地目录>/dev-skills；如果已存在，先检查 git status，保留未提交改动，并使用 fast-forward 更新匹配该地址的远端 main 分支。
+进入仓库后执行 make audit-skills，再执行：
+bash scripts/install_team_bundle.sh --profile diy --targets codex --no-interactive --dry-run
+请报告将同步的 skills、冲突路径和对应目标；不要修改 Cursor 或 Claude Code。
+```
+
+确认预演中的目标都属于该仓库后，可继续让 AI 完成同步并检查软链接：
+
+```text
+继续只同步到 Codex。仅当冲突目标是该仓库已管理的软链接时覆盖；遇到普通目录或不属于该仓库的链接时保留并报告。
+执行完成后，核对 ~/.codex/skills.union 和 ~/.codex/skills 中的链接均指向当前 dev-skills 仓库，并说明结果。
+```
+
+要把新的个人 skill（例如面试准备）纳入管理仓库时，把其 Git 地址或本地目录补到提示词里，并要求 AI 将它放到合适分类、更新 `config/profiles/diy.skills` 与索引文档，再运行审计和 Codex 预演。
 
 ## 🔄✨ 技能同步魔法
 
@@ -182,6 +203,7 @@ bash scripts/install_team_bundle.sh --help
 | 参数 | 说明 |
 |---|---|
 | `--profile <name>` | 使用 `config/profiles/<name>.skills`，默认 `diy` |
+| `--targets <list>` | 仅同步指定客户端：`cursor`、`claude`、`codex` |
 | `--interactive` | 在终端中选择本次同步的技能 |
 | `--no-interactive` | 不询问，按 profile 全量处理 |
 | `--dry-run` | 只打印计划，不落地 |
@@ -196,6 +218,9 @@ bash scripts/install_team_bundle.sh --help
 ```bash
 # 交互选择本次同步项
 bash scripts/install_team_bundle.sh --profile diy --interactive
+
+# 仅同步到 Codex
+bash scripts/install_team_bundle.sh --profile diy --targets codex --no-interactive
 
 # 同名时保留现有项
 bash scripts/install_team_bundle.sh --profile diy --skill-conflict skip

@@ -30,7 +30,6 @@
 
 ## Platform
 
-- **git-worktree** - Git worktree 管理
 - **skill-usage-tracker** - 本地技能使用统计
 
 ## 目录约束

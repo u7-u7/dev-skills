@@ -27,15 +27,17 @@ CONFLICT_POLICY="ask"
 SKILL_CONFLICT_POLICY="overwrite"
 INTERACTIVE_MODE="auto"
 PERSIST_EXTRA="ask"
+TARGETS_CSV="cursor,claude,codex"
 
 usage() {
   cat <<EOF
 用法:
-  bash scripts/install_team_bundle.sh [--profile diy] [--only skills] [--conflict ask|overwrite|skip] [--skill-conflict overwrite|skip|rename|ask] [--persist-extra ask|always|never] [--interactive|--no-interactive] [--force] [--dry-run] [--uninstall]
+  bash scripts/install_team_bundle.sh [--profile diy] [--only skills] [--targets cursor,claude,codex] [--conflict ask|overwrite|skip] [--skill-conflict overwrite|skip|rename|ask] [--persist-extra ask|always|never] [--interactive|--no-interactive] [--force] [--dry-run] [--uninstall]
 
 参数:
   --profile <name>  profile 名称（位于 config/profiles，默认: diy）
   --only <scope>    安装范围: skills（默认: skills）
+  --targets <list>  客户端目标：cursor,claude,codex（默认: 全部）
   --conflict <mode> 目标重名时策略: ask|overwrite|skip（默认: ask）
   --skill-conflict <mode> skill 重名策略: overwrite|skip|rename|ask（默认: overwrite）
   --persist-extra <mode> 追加未收录 skills 是否写回 profile: ask|always|never（默认: ask）
@@ -55,6 +57,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --only)
       ONLY="${2:-}"
+      shift 2
+      ;;
+    --targets)
+      TARGETS_CSV="${2:-}"
       shift 2
       ;;
     --conflict)
@@ -142,6 +148,52 @@ case "$PERSIST_EXTRA" in
     exit 1
     ;;
 esac
+
+contains_csv_item() {
+  local csv="$1"
+  local item="$2"
+  local token
+  IFS=',' read -r -a __items <<<"$csv"
+  for token in "${__items[@]-}"; do
+    token="${token//[[:space:]]/}"
+    [[ "$token" == "$item" ]] && return 0
+  done
+  return 1
+}
+
+validate_targets_csv() {
+  local token
+  local count=0
+  IFS=',' read -r -a __targets <<<"$TARGETS_CSV"
+  for token in "${__targets[@]-}"; do
+    token="${token//[[:space:]]/}"
+    [[ -z "$token" ]] && continue
+    case "$token" in
+      cursor|claude|codex)
+        count=$((count + 1))
+        ;;
+      *)
+        log_error "--targets 含非法项: ${token}（可选: cursor,claude,codex）"
+        exit 1
+        ;;
+    esac
+  done
+  if [[ $count -eq 0 ]]; then
+    log_error "--targets 至少指定一个客户端"
+    exit 1
+  fi
+}
+
+target_id_for_ide() {
+  case "$1" in
+    "Cursor") echo "cursor" ;;
+    "Claude Code") echo "claude" ;;
+    "Codex") echo "codex" ;;
+    *) return 1 ;;
+  esac
+}
+
+validate_targets_csv
 
 NEED_SKILLS=1
 if [[ ! -f "$SKILLS_PROFILE" ]]; then
@@ -1243,6 +1295,7 @@ echo "======================================"
 echo " 🚀 团队安装器"
 echo " profile: $PROFILE"
 echo " 范围: $ONLY"
+echo " 客户端: $TARGETS_CSV"
 [[ $FORCE -eq 1 ]] && echo " 强制覆盖: 是"
 echo " 冲突策略: $CONFLICT_POLICY"
 echo " skills 重名策略: ${SKILL_CONFLICT_POLICY}（默认 overwrite，可选 skip/rename/ask）"
@@ -1276,6 +1329,11 @@ echo "======================================"
 
 for config in "${IDE_CONFIGS[@]}"; do
   IFS='|' read -r name skills_targets_csv <<< "$config"
+  target_id="$(target_id_for_ide "$name")"
+  if ! contains_csv_item "$TARGETS_CSV" "$target_id"; then
+    log_info "跳过 ${name}（不在 --targets 范围内）"
+    continue
+  fi
   if ! is_ide_detected "$name"; then
     log_warn "跳过 ${name}（未检测到客户端/CLI：$(ide_detect_hint "$name")）"
     continue

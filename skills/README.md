@@ -1,6 +1,6 @@
 # DIY Skills Index
 
-仓库当前包含 13 个技能，按职责分为四类。
+仓库当前包含 12 个技能，按职责分为四类。
 
 ## Development
 
@@ -32,7 +32,6 @@
 
 | Skill | 触发场景 | 主要输出 |
 |---|---|---|
-| `git-worktree` | 并行分支开发或 worktree 管理 | 标准化 worktree |
 | `skill-usage-tracker` | 执行技能或查看统计 | `~/usage_stats.json` 中的本地统计 |
 
 ## 目录

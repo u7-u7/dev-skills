@@ -19,5 +19,4 @@
 ## 辅助能力
 
 - `diagram-creation`：按需为技术方案补充流程图、架构图或时序图。
-- `git-worktree`：隔离并行开发分支。
 - `skill-usage-tracker`：记录本地使用数据。
