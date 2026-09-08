@@ -98,11 +98,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 install
 Codex、Claude Code、Cursor 等支持终端操作的 AI IDE，都可以直接把下面的提示词交给 AI。它会先检查本地仓库与未提交改动，再拉取远端、审计 profile，并且只预演 Codex 的安装计划：
 
 ```text
-请更新本地的 https://github.com/u7-u7/dev-skills 技能管理仓库。
-如果仓库还没有克隆，请拉取到 <本地目录>/dev-skills；如果已存在，先检查 git status，保留未提交改动，并使用 fast-forward 更新匹配该地址的远端 main 分支。
-进入仓库后执行 make audit-skills，再执行：
-bash scripts/install_team_bundle.sh --profile diy --targets codex --no-interactive --dry-run
-请报告将同步的 skills、冲突路径和对应目标；不要修改 Cursor 或 Claude Code。
+https://github.com/u7-u7/dev-skills 这是skill管理仓库，帮我拉下来并通过脚本 同步skill到codex
 ```
 
 确认预演中的目标都属于该仓库后，可继续让 AI 完成同步并检查软链接：
