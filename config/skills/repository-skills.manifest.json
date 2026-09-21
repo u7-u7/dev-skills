@@ -13,8 +13,8 @@
       "id": "development",
       "title": "Development workflows",
       "severity": "medium",
-      "canonical": "Use brainstorming for open-ended discovery, sdd-dev-workflow for requirement-to-task planning, and ai-pair-programmer for implementation.",
-      "recommendation": "Use app-scanner for multi-application context. sdd-dev-workflow must inspect code and stop at tasks unless implementation is explicitly requested.",
+      "canonical": "Use brainstorming for open-ended discovery, then route development work by complexity: ai-pair-programmer for 0-30, user choice for 31-60, and sdd-dev-workflow for 61-100 before implementation.",
+      "recommendation": "Score requirement uncertainty, impact scope, contract and data risk, external coordination, and validation difficulty. Use app-scanner for multi-application context. sdd-dev-workflow must inspect code and stop at tasks unless implementation is explicitly requested.",
       "matches": [
         { "name": "brainstorming" },
         { "name": "app-scanner" },
