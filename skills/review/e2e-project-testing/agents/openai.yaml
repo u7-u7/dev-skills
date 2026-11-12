@@ -1,0 +1,4 @@
+interface:
+  display_name: "🧪 Web E2E 测试"
+  short_description: "为 Web 项目生成 E2E 脚手架、编写回归测试并运行定位失败，支持 Codex 与 Claude"
+  default_prompt: "使用 $e2e-project-testing 为当前 Web 项目补充有意义的 smoke 测试并运行验证。"

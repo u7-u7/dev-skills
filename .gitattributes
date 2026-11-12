@@ -1,0 +1,2 @@
+# Git Bash 也需要 LF，避免 Windows checkout 后将 CR 当成命令参数。
+skills/review/e2e-*/scripts/*.sh text eol=lf

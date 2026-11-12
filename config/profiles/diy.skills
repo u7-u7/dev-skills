@@ -9,6 +9,8 @@ development/developer-resume-writer
 review/author-final-review
 review/code-review
 review/integration-test
+review/e2e-local-setup
+review/e2e-project-testing
 review/full-review
 review/team-cr
 visualization/diagram-creation

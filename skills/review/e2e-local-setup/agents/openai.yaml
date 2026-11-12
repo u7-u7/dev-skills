@@ -1,0 +1,4 @@
+interface:
+  display_name: "🧰 E2E 环境准备"
+  short_description: "检查并准备 Web E2E 的 Node、依赖和浏览器环境，支持系统与便携安装"
+  default_prompt: "使用 $e2e-local-setup 检查当前项目的 Web E2E 环境并补齐必要依赖。"

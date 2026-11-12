@@ -21,6 +21,8 @@
 - **author-final-review** - 指定作者最终态审查
 - **code-review** - 代码质量审查
 - **integration-test** - 集成测试设计
+- **e2e-local-setup** - Web E2E 环境准备与排障
+- **e2e-project-testing** - Web 浏览器 smoke 与回归执行
 - **full-review** - 完整审查工作流
 - **team-cr** - 团队审查会议准备
 

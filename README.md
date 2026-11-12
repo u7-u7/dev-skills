@@ -18,12 +18,41 @@
 | 🧪 Review | `author-final-review` | 👤 审查指定作者的最终代码状态 |
 | 🧪 Review | `code-review` | 🛡️ 检查代码质量、安全、性能和架构风险 |
 | 🧪 Review | `integration-test` | 🎯 根据变更风险设计集成测试用例 |
+| 🧪 Review | `e2e-local-setup` | 🧰 检查 Node、依赖和 Chromium，让 Web E2E 环境就位 |
+| 🧪 Review | `e2e-project-testing` | 🕹️ 生成脚手架、验证用户流程，带着失败证据定位问题 |
 | 🧪 Review | `full-review` | 📦 汇总代码审查、影响分析和测试设计 |
 | 🧪 Review | `team-cr` | 👥 为多人代码审查会议生成讨论清单 |
 | 🎨 Visualization | `diagram-creation` | 🗺️ 创建流程图、架构图、时序图和学习路线 |
 | ⚙️ Platform | `skill-usage-tracker` | 📊 记录和查看本地技能使用统计 |
 
 想看看它们什么时候会自动出现、彼此怎么组队？详细触发方式与依赖关系都藏在 [skills/README.md](skills/README.md) 里啦 📚✨
+
+## 🧪🐾 E2E 双人组：先搭舞台，再跑剧情
+
+给 Web 项目补自动化测试时，这两位搭档可以一起出场：`e2e-local-setup` 检查运行环境，`e2e-project-testing` 编写并运行 smoke 与回归。兼容 **Codex 和 Claude Code**，默认 locator 测试无需模型 Key；测试里的 AI 操作需要另行配置模型 🧠
+
+```text
+🧰 检查环境 → 🏗️ 补齐配置 → 🕹️ 验证真实行为 → 🔎 分析 trace → 📋 汇报结果
+```
+
+🍎🐧 在仓库根目录只预览安装这两个技能：
+
+```bash
+bash scripts/install_team_bundle.sh --profile e2e --targets codex,claude --no-interactive --dry-run
+```
+
+确认输出后去掉 `--dry-run` 即可安装。Windows 可用 `.\install.ps1 preview -Profile e2e`，再执行 `.\install.ps1 install -Profile e2e`。默认 `diy` profile 也已包含它们。
+
+| 客户端 | 召唤示例 |
+|---|---|
+| Codex | `$e2e-local-setup 检查当前项目的测试环境` |
+| Codex | `$e2e-project-testing 给当前 Web 项目补 smoke 并运行` |
+| Claude Code | `/e2e-local-setup 检查当前项目的测试环境` |
+| Claude Code | `/e2e-project-testing 给当前 Web 项目补 smoke 并运行` |
+
+脚本适用于 macOS、Linux 和 Windows Git Bash，不再依赖固定盘符或 WorkBuddy 路径。已有文件不会被脚手架覆盖，运行器不整目录删除 `.e2e` 缓存和证据。框架仍会更新本轮 results，需要留存上一轮报告时先归档 📸
+
+👉 [完整使用指南](docs/e2e-skills.md)包含当前 Codex 的 `.agents/skills` 手动安装方式、版本配对、Vite/Next 启动示例、便携环境设置和排障。仓库现有安装器仍沿用上文所述的 Codex 兼容目录，任选一种安装方式，避免同名技能重复出现。
 
 ## 🗺️ Skill 冒险路线
 

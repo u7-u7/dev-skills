@@ -1,6 +1,6 @@
 # DIY Skills Index
 
-仓库当前包含 12 个技能，按职责分为四类。
+仓库当前包含 14 个技能，按职责分为四类。
 
 ## Development
 
@@ -19,6 +19,8 @@
 | `author-final-review` | 聚焦单一作者的最终变更 | 无 |
 | `code-review` | 深度检查质量与风险 | `author-final-review` |
 | `integration-test` | 为变更设计集成测试 | `author-final-review` |
+| `e2e-local-setup` | 准备或修复 e2e-inc/e2e 的 Node、依赖和浏览器环境 | 无 |
+| `e2e-project-testing` | 为 Web 项目编写并执行浏览器 smoke 和回归 | 无硬依赖；环境问题可交给 `e2e-local-setup` |
 | `full-review` | 需要统一审查报告 | `author-final-review`、`code-review`、`integration-test` |
 | `team-cr` | 多人或多模块审查会议 | 无 |
 
@@ -45,3 +47,5 @@ skills/
 ```
 
 每个技能目录必须自包含运行所需的说明、脚本、参考资料和模板。
+
+🧪 E2E 技能的 Codex / Claude Code 安装、命令示例和排障见 [使用指南](../docs/e2e-skills.md)。
