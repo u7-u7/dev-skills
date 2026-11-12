@@ -35,7 +35,28 @@
 🧰 检查环境 → 🏗️ 补齐配置 → 🕹️ 验证真实行为 → 🔎 分析 trace → 📋 汇报结果
 ```
 
-🍎🐧 在仓库根目录只预览安装这两个技能：
+### 📦 推荐：通过 npm / npx 安装
+
+在要测试的项目根目录运行，无需手动克隆本仓库（需要 Node ≥22.20、npm 和 Git）：
+
+```bash
+npx --yes skills@1.8.1 add u7-u7/dev-skills --skill e2e-local-setup e2e-project-testing --agent codex claude-code --yes
+```
+
+只用一个客户端时，`--agent` 后只保留 `codex` 或 `claude-code`；想让所有项目都能用，在末尾加 `--global`。项目级安装会创建 `.agents/skills`、Claude Code 对应链接和 `skills-lock.json`。安装完成后重新打开客户端，用下面的提示词召唤技能 🪄
+
+也支持先安装命令行工具，再安装技能：
+
+```bash
+npm install --global skills@1.8.1
+skills add u7-u7/dev-skills --skill e2e-local-setup e2e-project-testing --agent codex claude-code --yes
+```
+
+这里使用的是 [Vercel Skills CLI](https://github.com/vercel-labs/skills)，技能内容来自本仓库；不会自动安装测试框架或浏览器。已通过其他方式安装同名技能时先核对归属与定制内容，选择一种方式管理，避免重复安装。
+
+### 🔗 备选：沿用仓库安装器
+
+🍎🐧 已克隆本仓库时，在仓库根目录只预览安装这两个技能：
 
 ```bash
 bash scripts/install_team_bundle.sh --profile e2e --targets codex,claude --no-interactive --dry-run
@@ -52,7 +73,7 @@ bash scripts/install_team_bundle.sh --profile e2e --targets codex,claude --no-in
 
 脚本适用于 macOS、Linux 和 Windows Git Bash，不再依赖固定盘符或 WorkBuddy 路径。已有文件不会被脚手架覆盖，运行器不整目录删除 `.e2e` 缓存和证据。框架仍会更新本轮 results，需要留存上一轮报告时先归档 📸
 
-👉 [完整使用指南](docs/e2e-skills.md)包含当前 Codex 的 `.agents/skills` 手动安装方式、版本配对、Vite/Next 启动示例、便携环境设置和排障。仓库现有安装器仍沿用上文所述的 Codex 兼容目录，任选一种安装方式，避免同名技能重复出现。
+👉 [完整使用指南](docs/e2e-skills.md)包含 npm 安装与更新、当前 Codex 的 `.agents/skills` 手动安装方式、版本配对、Vite/Next 启动示例、便携环境设置和排障。仓库现有安装器仍沿用兼容目录，任选一种安装方式，避免同名技能重复出现。
 
 ## 🗺️ Skill 冒险路线
 
