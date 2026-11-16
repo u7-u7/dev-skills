@@ -1,6 +1,6 @@
 # DIY Skills Index
 
-仓库当前包含 14 个技能，按职责分为四类。
+仓库当前包含 15 个技能，按职责分为四类。
 
 ## Development
 
@@ -29,6 +29,7 @@
 | Skill | 触发场景 | 主要输出 |
 |---|---|---|
 | `diagram-creation` | 需要流程、结构或时序可视化 | Mermaid、PlantUML 或其他图表源码 |
+| `sketchnote-infographic` | 将主题、文章或笔记做成手绘知识海报 | 白底淡彩、中文清晰的海报图片及最终提示词 |
 
 ## Platform
 

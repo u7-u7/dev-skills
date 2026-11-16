@@ -1,0 +1,4 @@
+interface:
+  display_name: "手绘知识海报"
+  short_description: "把文章、笔记或主题生成白底淡彩、中文清晰的手绘知识海报图片"
+  default_prompt: "使用 $sketchnote-infographic，把我的主题或资料生成一张白底、马卡龙分区、粗黑手写标题和少量 Q 版插画的中文知识海报。"

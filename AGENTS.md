@@ -29,6 +29,7 @@
 ## Visualization
 
 - **diagram-creation** - 流程图、架构图和时序图
+- **sketchnote-infographic** - 中文手绘知识海报与涂鸦信息图
 
 ## Platform
 

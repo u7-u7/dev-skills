@@ -23,9 +23,32 @@
 | 🧪 Review | `full-review` | 📦 汇总代码审查、影响分析和测试设计 |
 | 🧪 Review | `team-cr` | 👥 为多人代码审查会议生成讨论清单 |
 | 🎨 Visualization | `diagram-creation` | 🗺️ 创建流程图、架构图、时序图和学习路线 |
+| 🎨 Visualization | `sketchnote-infographic` | ✏️ 将文章、笔记或主题生成白底淡彩的手绘知识海报 |
 | ⚙️ Platform | `skill-usage-tracker` | 📊 记录和查看本地技能使用统计 |
 
 想看看它们什么时候会自动出现、彼此怎么组队？详细触发方式与依赖关系都藏在 [skills/README.md](skills/README.md) 里啦 📚✨
+
+## ✏️ 一图讲清：手绘知识海报
+
+`sketchnote-infographic` 将主题或资料变成白底、粗黑手写标题、马卡龙分区、荧光笔重点与少量 Q 版插画的知识海报。默认横版 16:9，也支持手机竖版；有图片生成工具时直接出图，没有时交付完整提示词并说明限制，不需要绑定某个付费 API。
+
+![手绘知识海报示例：学习复盘](skills/visualization/sketchnote-infographic/assets/example.png)
+
+在 Codex 中使用 `$sketchnote-infographic`，在 Claude Code 中使用 `/sketchnote-infographic`，例如：
+
+```text
+$sketchnote-infographic 把这篇文章做成中文手绘知识海报，保留关键结论。
+$sketchnote-infographic 参考这张图的风格，画一张讲清“学习复盘”的知识图。
+$sketchnote-infographic 只给我完整出图提示词，主题是时间管理，适合手机阅读。
+```
+
+技能已加入默认 `diy` 安装清单，也可单独安装：
+
+```bash
+npx --yes skills@1.8.1 add u7-u7/dev-skills --skill sketchnote-infographic --agent codex claude-code --yes
+```
+
+查看 [技能说明](skills/visualization/sketchnote-infographic/SKILL.md) 与 [提示词模板和示例](skills/visualization/sketchnote-infographic/references/prompt-template.md)。参考图片只提供风格，主题文案单独整理；出图后检查中文、编号和箭头，长资料优先精简或分页。
 
 ## 🧪🐾 E2E 双人组：先搭舞台，再跑剧情
 
