@@ -13,6 +13,7 @@
 
 - **brainstorming** - 需求分析与方案设计
 - **ai-pair-programmer** - AI 结对编程
+- **ai-pair-programmer-v1-1** - 1.1 fork 版本（Ub Mode 三段式流程）
 - **app-scanner** - 应用扫描与能力提取
 - **sdd-dev-workflow** - 需求、代码扫描、技术方案、Plan 与 Tasks 编排
 
