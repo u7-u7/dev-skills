@@ -19,7 +19,8 @@
         { "name": "brainstorming" },
         { "name": "app-scanner" },
         { "name": "sdd-dev-workflow" },
-        { "name": "ai-pair-programmer" }
+        { "name": "ai-pair-programmer" },
+        { "name": "ai-pair-programmer-v1-1" }
       ]
     },
     {

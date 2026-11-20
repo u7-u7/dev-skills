@@ -1,6 +1,6 @@
 # DIY Skills Index
 
-仓库当前包含 15 个技能，按职责分为四类。
+仓库当前包含 16 个技能，按职责分为四类。
 
 ## Development
 
@@ -10,6 +10,7 @@
 | `app-scanner` | 多应用工作区需要能力盘点 | 应用能力清单与应用级 `SKILL.md` |
 | `sdd-dev-workflow` | 复杂度 61-100，或中等复杂度且用户选择 SDD 时准备开发任务 | 需求基线、代码证据、技术方案、Plan 与 Tasks |
 | `ai-pair-programmer` | 复杂度 0-30 的快速开发，或用户选择直接实现时编写、修改、重构或测试代码 | 可验证的代码改动 |
+| `ai-pair-programmer-v1-1` | v1.1 fork：Ub Mode 三段式结对开发，与原版并存供评审 | 可验证的代码改动 |
 | `developer-resume-writer` | 根据项目或现有简历整理项目经历 | 项目简介、技术栈和项目亮点 |
 
 ## Review
